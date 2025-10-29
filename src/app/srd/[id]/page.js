@@ -3,15 +3,15 @@
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Layout from '../../../components/layout/Layout';
-import DepartmentPanel from '../../../components/DepartmentPanel';
-import CadSubprocessPanel from '../../../components/CadSubprocessPanel';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
-import { Badge } from '../../../components/ui/badge';
-import { Progress } from '../../../components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { Button } from '../../../components/ui/button';
-import { useToast } from '../../../lib/use-toast';
+import Layout from '@/components/layout/Layout';
+import DepartmentPanel from '@/components/DepartmentPanel';
+import CadSubprocessPanel from '@/components/CadSubprocessPanel';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/lib/use-toast';
 import { 
   FileText, 
   Calendar, 

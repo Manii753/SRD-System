@@ -3,11 +3,11 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Layout from '../../../components/layout/Layout';
-import SRDCard from '../../../components/SRDCard';
-import SRDTable from '../../../components/SRDTable';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
+import Layout from '@/components/layout/Layout';
+import SRDCard from '@/components/SRDCard';
+import SRDTable from '@/components/SRDTable';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Package, Clock, CheckCircle, AlertCircle, Scissors } from 'lucide-react';
 
 export default function CADDashboard() {
@@ -156,7 +156,7 @@ export default function CADDashboard() {
         {viewMode === 'cards' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {srds.map((srd) => (
-              <SRDCard key={srd.id} srd={srd} department="cad" />
+              <SRDCard key={srd._id} srd={srd} department="cad" />
             ))}
           </div>
         ) : (

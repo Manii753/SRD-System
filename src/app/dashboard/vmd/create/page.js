@@ -3,14 +3,14 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Layout from '../../../../components/layout/Layout';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../../components/ui/card';
-import { Button } from '../../../../components/ui/button';
-import { Input } from '../../../../components/ui/input';
-import { Textarea } from '../../../../components/ui/textarea';
-import { Label } from '../../../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
-import { useToast } from '../../../../lib/use-toast';
+import Layout from '@/components/layout/Layout';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/lib/use-toast';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 
@@ -58,10 +58,17 @@ export default function CreateSRDPage() {
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
+          refNo: `SRD-${Date.now()}`,
           createdBy: {
             id: session.user.email,
             name: session.user.name,
             role: session.user.role
+          },
+          status: {
+            vmd: 'pending',
+            cad: 'pending',
+            commercial: 'pending',
+            mmc: 'pending'
           },
           vmdFields: {
             priority: formData.priority,

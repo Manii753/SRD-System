@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
-import { Badge } from './ui/badge';
-import { Progress } from './ui/progress';
-import { Button } from './ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { Calendar, User, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -79,7 +79,7 @@ export default function SRDCard({ srd, department }) {
       </CardContent>
       
       <CardFooter>
-        <Link href={`/srd/${srd.id}`} className="w-full">
+        <Link href={`/srd/${srd._id}`} className="w-full">
           <Button className="w-full">View Details</Button>
         </Link>
       </CardFooter>

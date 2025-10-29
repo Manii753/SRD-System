@@ -5,8 +5,8 @@ import SRD from '@/models/SRD';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-
-    const srd = await SRD.findById(params.id);
+    const resolvedParams = await params;
+    const srd = await SRD.findById(resolvedParams.id);
     
     if (!srd) {
       return NextResponse.json({
@@ -30,9 +30,9 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     await dbConnect();
-
+    const resolvedParams = await params;
     const body = await request.json();
-    const updatedSRD = await SRD.findByIdAndUpdate(params.id, body, { new: true, runValidators: true });
+    const updatedSRD = await SRD.findByIdAndUpdate(resolvedParams.id, body, { new: true, runValidators: true });
     
     if (!updatedSRD) {
       return NextResponse.json({
@@ -57,8 +57,8 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     await dbConnect();
-
-    const deletedSRD = await SRD.findByIdAndDelete(params.id);
+    const resolvedParams = await params;
+    const deletedSRD = await SRD.findByIdAndDelete(resolvedParams.id);
 
     if (!deletedSRD) {
       return NextResponse.json(

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Progress } from './ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { ChevronUp, ChevronDown, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 
@@ -163,7 +163,7 @@ export default function SRDTable({ srds, department }) {
                   {new Date(srd.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link href={`/srd/${srd.id}`}>
+                  <Link href={`/srd/${srd._id}`}>
                     <Button size="sm" variant="outline">
                       View
                     </Button>

@@ -3,11 +3,11 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Layout from '../../../components/layout/Layout';
-import SRDCard from '../../../components/SRDCard';
-import SRDTable from '../../../components/SRDTable';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
+import Layout from '@/components/layout/Layout';
+import SRDCard from '@/components/SRDCard';
+import SRDTable from '@/components/SRDTable';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ShoppingCart, Clock, CheckCircle, AlertCircle, DollarSign } from 'lucide-react';
 
 export default function CommercialDashboard() {

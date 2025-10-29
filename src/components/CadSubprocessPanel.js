@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Progress } from './ui/progress';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { AlertCircle, ScatterChartIcon, SquareKanbanDashedIcon } from 'lucide-react';
 
 
 export default function CadSubprocessPanel({ 
@@ -137,7 +138,7 @@ export default function CadSubprocessPanel({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 rounded-lg">
-                      <SubprocessIcon className="h-5 w-5 text-gray-600" />
+                      <SquareKanbanDashedIcon className="h-5 w-5 text-gray-600" />
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900">{subprocess.name}</h4>
@@ -146,7 +147,7 @@ export default function CadSubprocessPanel({
                   </div>
                   
                   <Badge className={statusClass}>
-                    <StatusIcon className="h-3 w-3 mr-1" />
+                    <ScatterChartIcon className="h-3 w-3 mr-1" />
                     {getStatusConfig(subprocesses[subprocess.id]).label}
                   </Badge>
                 </div>

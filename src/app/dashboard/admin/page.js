@@ -3,12 +3,12 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Layout from '../../../components/layout/Layout';
-import SRDCard from '../../../components/SRDCard';
-import SRDTable from '../../../components/SRDTable';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
+import Layout from '@/components/layout/Layout';
+import SRDCard from '@/components/SRDCard';
+import SRDTable from '@/components/SRDTable';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Users, FileText, CheckCircle, AlertCircle, Settings } from 'lucide-react';
 
 export default function AdminDashboard() {

@@ -2,11 +2,11 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { Bell, User, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { useToast } from '../../lib/use-toast';
-import { useEffect, useState } from 'react';
-import { initializePusher, bindPusherEvents } from '../../lib/pusher';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/lib/use-toast';
+import { initializePusher, bindPusherEvents } from '@/lib/pusher';
+import { useState, useEffect } from 'react';
 
 export default function Header() {
   const { data: session } = useSession();
