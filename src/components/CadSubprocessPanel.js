@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, ScatterChartIcon, SquareKanbanDashedIcon } from 'lucide-react';
+import { AlertCircle, Check, ScatterChartIcon, SquareKanbanDashedIcon } from 'lucide-react';
 
 
 export default function CadSubprocessPanel({ 
@@ -165,7 +165,7 @@ export default function CadSubprocessPanel({
                   </select>
                   
                   {subprocesses[subprocess.id] === 'done' && (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <Check className="h-5 w-5 text-green-500" />
                   )}
                 </div>
               </div>

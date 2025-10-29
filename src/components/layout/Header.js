@@ -67,7 +67,9 @@ export default function Header() {
         }
       });
       
-      return cleanup;
+      return () => {
+        cleanup();
+      };
     }
   }, [session, toast]);
 

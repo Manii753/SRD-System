@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getSRDById, updateSRD, addComment } from '../../../../../../lib/mockData';
+import dbConnect from '@/lib/db';
+import SRD from '@/models/SRD';
 
 export async function PATCH(request, { params }) {
   try {
-    const { id, dept } = params;
+    await dbConnect();
+    const resolvedParams = await params;
+    const { id, dept } = resolvedParams;
     const body = await request.json();
-    const srd = getSRDById(id);
+
+    const srd = await SRD.findById(id);
     
     if (!srd) {
       return NextResponse.json({
@@ -23,39 +27,37 @@ export async function PATCH(request, { params }) {
     }
     
     const updates = {
-      status: {
-        ...srd.status,
-        [dept]: body.status
-      }
+      [`status.${dept}`]: body.status,
+      updatedAt: new Date()
     };
     
     // Update department-specific fields
     if (body.fields && Object.keys(body.fields).length > 0) {
-      updates[`${dept}Fields`] = {
-        ...srd[`${dept}Fields`],
-        ...body.fields
-      };
+      Object.keys(body.fields).forEach(field => {
+        updates[`${dept}Fields.${field}`] = body.fields[field];
+      });
     }
     
     // Update CAD subprocesses
     if (dept === 'cad' && body.cadSubprocesses) {
-      updates.cadSubprocesses = {
-        ...srd.cadSubprocesses,
-        ...body.cadSubprocesses
-      };
+      Object.keys(body.cadSubprocesses).forEach(subprocess => {
+        updates[`cadSubprocesses.${subprocess}`] = body.cadSubprocesses[subprocess];
+      });
     }
-    
-    const updatedSRD = updateSRD(id, updates);
     
     // Add comment if provided
     if (body.comment && body.comment.text) {
-      addComment(id, {
+      srd.comments.push({
         department: dept,
         author: body.comment.author,
         role: body.comment.role,
-        text: body.comment.text
+        text: body.comment.text,
+        date: new Date()
       });
+      updates.comments = srd.comments;
     }
+    
+    const updatedSRD = await SRD.findByIdAndUpdate(id, { $set: updates }, { new: true, runValidators: true });
     
     // Simulate Pusher events
     if (body.status === 'flagged') {
@@ -78,6 +80,7 @@ export async function PATCH(request, { params }) {
       message: `${dept.toUpperCase()} department updated successfully`
     });
   } catch (error) {
+    console.error('Error updating SRD department:', error);
     return NextResponse.json({
       success: false,
       error: error.message

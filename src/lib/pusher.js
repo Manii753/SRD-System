@@ -6,20 +6,23 @@ let channel = null;
 export const initializePusher = () => {
   if (typeof window === 'undefined') return null;
   
-  if (pusher) return pusher;
+  if (pusher) {
+    return pusher;
+  }
   
   pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || 'test-key', {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2',
     forceTLS: true,
     enabledTransports: ['ws', 'wss'],
-    // For development, you can use these test credentials
-    // In production, use real Pusher credentials
     authEndpoint: '/api/pusher/auth',
     auth: {
       headers: {
         'X-CSRF-Token': 'test-csrf-token'
       }
     }
+  });
+
+  pusher.connection.bind('state_change', (states) => {
   });
   
   return pusher;
