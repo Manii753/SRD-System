@@ -229,27 +229,34 @@ export default function SRDDetailPage() {
             ))}
           </TabsList>
 
-          {Object.keys(srd.status).map((dept) => (
-            <TabsContent key={dept} value={dept}>
-              {dept === 'cad' && (
-                <div className="space-y-6">
-                  <CadSubprocessPanel
-                    srd={srd}
-                    onUpdate={(data) => handleDepartmentUpdate('cad', data)}
-                    isLoading={false}
-                  />
-                </div>
-              )}
-              
-              <DepartmentPanel
-                srd={srd}
-                department={dept}
-                onUpdate={(data) => handleDepartmentUpdate(dept, data)}
-                isLoading={false}
-              />
-            </TabsContent>
-          ))}
+          {Object.keys(srd.status).map((dept) => {
+            const canEdit = userRole === dept || userRole === 'admin';
+
+            return (
+              <TabsContent key={dept} value={dept}>
+                {dept === 'cad' && (
+                  <div className="space-y-6">
+                    <CadSubprocessPanel
+                      srd={srd}
+                      onUpdate={(data) => handleDepartmentUpdate('cad', data)}
+                      isLoading={false}
+                      canEdit={canEdit}
+                    />
+                  </div>
+                )}
+
+                <DepartmentPanel
+                  srd={srd}
+                  department={dept}
+                  onUpdate={(data) => handleDepartmentUpdate(dept, data)}
+                  isLoading={false}
+                  canEdit={canEdit}
+                />
+              </TabsContent>
+            );
+          })}
         </Tabs>
+
 
         {/* Timeline */}
         <Card>

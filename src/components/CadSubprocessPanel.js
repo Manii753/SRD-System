@@ -11,7 +11,8 @@ import { AlertCircle, Check, ScatterChartIcon, SquareKanbanDashedIcon } from 'lu
 export default function CadSubprocessPanel({ 
   srd, 
   onUpdate, 
-  isLoading 
+  isLoading,
+  canEdit
 }) {
   const [subprocesses, setSubprocesses] = useState(srd.cadSubprocesses || {});
 
@@ -90,10 +91,7 @@ export default function CadSubprocessPanel({
         // Auto-approve CAD if all subprocesses are done
         await onUpdate({
           cadSubprocesses: updatedSubprocesses,
-          status: {
-            ...srd.status,
-            cad: 'approved'
-          }
+          status: 'approved'
         });
       }
     } catch (error) {
@@ -156,7 +154,7 @@ export default function CadSubprocessPanel({
                   <select
                     value={subprocesses[subprocess.id] || 'pending'}
                     onChange={(e) => handleStatusChange(subprocess.id, e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading || !canEdit}
                     className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="pending">Pending</option>

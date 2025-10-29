@@ -40,49 +40,125 @@ const srdSchema = new mongoose.Schema({
   
   // VMD Fields
   vmdFields: {
-    priority: String,
-    deadline: Date,
-    materialType: String,
-    quantity: Number,
-    specifications: String
+    sampleRequestDate: String,
+    sampleTargetDispatchDate: String,
+    sampleType: String,
+    refNo: String,
+    buyer: String,
+    buyerStyleRef: String,
+    fit: String,
+    washColor: String,
+    washComments: String,
+    sampleRequestSize: String,
+    sampleRequestQty: Number,
+    costingRequired: String,
+    garmentConstruction: String,
+    flyDetails: String,
+    flyOpeningLength: String,
+    loopLengthQty: String,
+    loopFusing: String,
+    wbFusing: String,
+    yokeAttachment: String,
+    backRiseAttachment: String,
+    inseamAttachment: String,
+    fabricCode: String,
+    fabricType: String,
+    color: String,
+    fabricSupplier: String,
+    secondaryFabric: String,
+    fabricAvailability: String,
+    addOns: String,
+    beforeWashTrims: {
+      topThread: String,
+      bottomThread: String,
+      bustedThread: String,
+      embThread: String,
+      trimAvailability: String,
+      addOns: String
+    },
+    afterWashTrims: {
+      puPatch: String,
+      mainButton: String,
+      mainButtonColor: String,
+      flyButton: String,
+      flyButtonColor: String,
+      rivet: String,
+      rivetColor: String,
+      trimAvailability: String,
+      overrider: String,
+      addOns: String
+    },
+    embellishments: {
+      requiredPrints: String,
+      printArea: String,
+      printColor: String,
+      printArtwork: String,
+      printAddOns: String,
+      requiredEmbroidery: String,
+      embroideryArea: String,
+      embroideryColor: String,
+      embroideryArtwork: String,
+      embroideryAddOns: String
+    }
   },
-  
+
   // CAD Fields
   cadFields: {
-    consumption: Number,
-    rollNumber: String,
-    shrinkage: Number,
-    width: Number,
+    consumption: String,
+    rollNo: String,
+    shrinkage: String,
+    width: String,
     beltTracing: String,
-    consumptionWidth: Number,
-    cadFile: String,
-    patternNumber: String
+    consumptionWidth: String
   },
-  
+
   // Commercial Fields
   commercialFields: {
-    supplier: String,
-    cost: Number,
-    leadTime: Number,
-    availability: String,
-    quotation: String
+    requiredQty: String,
+    fabricInStock: Boolean,
+    orderPlacedDate: Date,
+    fabricReceivedDate: Date,
+
+    beforeWashTrims: {
+      inStock: Boolean,
+      orderPlacedDate: Date,
+      receivedDate: Date
+    },
+    afterWashTrims: {
+      inStock: Boolean,
+      orderPlacedDate: Date,
+      receivedDate: Date
+    },
+    embellishments: {
+      inStock: Boolean,
+      orderPlacedDate: Date,
+      receivedDate: Date
+    },
+
+    additionalComments: String,
+    actualDispatchDate: String,
+    sampleDispatchDate: String,
+    numberOfSamples: String,
+    samplesCheckedBy: String,
+    awbNumber: String
   },
-  
+
   // MMC Fields
   mmcFields: {
-    machineRequirements: String,
-    productionTime: Number,
-    qualityCheck: String,
-    packaging: String,
-    shipping: String
+    trimInStock: String,
+    orderPlaced: String,
+    orderPlacedDate: String,
+    trimReceivedDate: String,
+    materialSentDate: String,
+    materialReceivedDate: String
   },
-  
+
   // CAD Subprocesses
   cadSubprocesses: {
-    sewing: { type: String, enum: ['pending', 'in-progress', 'done'], default: 'pending' },
-    stitching: { type: String, enum: ['pending', 'in-progress', 'done'], default: 'pending' },
-    cutting: { type: String, enum: ['pending', 'in-progress', 'done'], default: 'pending' },
-    finishing: { type: String, enum: ['pending', 'in-progress', 'done'], default: 'pending' }
+    sewing: { type: String, default: "pending" },
+    stitching: { type: String, default: "pending" },
+    cutting: { type: String, default: "pending" },
+    finishing: { type: String, default: "pending" }
   },
   
   comments: [commentSchema],

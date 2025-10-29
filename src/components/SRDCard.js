@@ -64,9 +64,7 @@ export default function SRDCard({ srd, department }) {
                 <span className="text-gray-500">{srd.createdBy.name}</span>
               </div>
             </div>
-            <Badge className={getPriorityColor(srd.vmdFields?.priority)}>
-              {srd.vmdFields?.priority || 'Medium'}
-            </Badge>
+            
           </div>
           
           {srd.comments.length > 0 && (

@@ -47,7 +47,7 @@ export default function CommercialDashboard() {
     const pending = srds.filter(srd => srd.status.commercial === 'pending').length;
     const approved = srds.filter(srd => srd.status.commercial === 'approved').length;
     const flagged = srds.filter(srd => srd.status.commercial === 'flagged').length;
-    const totalCost = srds.reduce((sum, srd) => sum + (srd.commercialFields?.cost || 0), 0);
+    const totalCost = srds.reduce((sum, srd) => sum + (0), 0);
     
     return { total, pending, approved, flagged, totalCost };
   };
