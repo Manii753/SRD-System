@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { seedUsers } from './seedUsers';
+import dbConnect from './db';
+import User from '../models/User';
 
 export const authOptions = {
   providers: [
@@ -11,10 +12,12 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const user = seedUsers.find(u => 
-          u.email === credentials.email && 
-          u.password === credentials.password
-        );
+        await dbConnect();
+
+        const user = await User.findOne({ 
+          email: credentials.email,
+          password: credentials.password
+        });
         
         if (user) {
           return {

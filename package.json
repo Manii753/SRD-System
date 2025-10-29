@@ -2,11 +2,13 @@
   "name": "srds-gemini-scaffold",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node src/lib/seed.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
