@@ -2,11 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import AppSidebar from './Sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 export default function Layout({ children }) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   if (status === 'loading') {
     return (
@@ -17,15 +18,17 @@ export default function Layout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
-      </div>
-      <Toaster />
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <div className="min-h-screen bg-gray-50">
+          <Header />
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+          <Toaster />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

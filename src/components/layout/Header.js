@@ -1,5 +1,6 @@
 'use client';
 
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useSession, signOut } from 'next-auth/react';
 import { Bell, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -85,6 +86,7 @@ export default function Header() {
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          <SidebarTrigger />
           <h1 className="text-2xl font-bold text-gray-900">SRD Tracking System</h1>
         </div>
         
