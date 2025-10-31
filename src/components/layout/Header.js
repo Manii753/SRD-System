@@ -107,7 +107,7 @@ export default function Header() {
           <div className="flex items-center space-x-2">
             <div className="text-right">
               <p className="text-sm font-medium text-gray-900">{session?.user?.name}</p>
-              <p className="text-xs text-gray-500">{session?.user?.role?.toUpperCase()}</p>
+              {/* <p className="text-xs text-gray-500">{session?.user?.role?.toUpperCase()}</p> */}
             </div>
             <Button
               variant="ghost"

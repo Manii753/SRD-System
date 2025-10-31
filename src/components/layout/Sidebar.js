@@ -118,7 +118,7 @@ export default function AppSidebar() {
   }
 
   return (
-    <Sidebar className="border-r-0" collapsible="icon">
+    <Sidebar className="border-r-0 transition-all duration-400" collapsible="icon">
       <div className="h-full bg-gradient-to-br from-slate-50 via-white to-slate-50" onClick={(e) => {
         // Prevent sidebar from auto-expanding on navigation
         if (state === 'collapsed') {
@@ -135,19 +135,11 @@ export default function AppSidebar() {
           {/* Logo Section */}
           <div className={cn("relative", !open && "flex flex-col items-center")}>
             
-            
             {open && (
-              <div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <div className=''>
+                <h2 className="text-xl text-nowrap font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   SRD System
                 </h2>
-                <div className={cn(
-                  "inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-md",
-                  `bg-gradient-to-r ${roleGradient}`
-                )}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
-                  {userRole?.toUpperCase()} Portal
-                </div>
               </div>
             )}
 
