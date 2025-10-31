@@ -23,6 +23,7 @@ export default function DepartmentPanel({
 }) {
   const [status, setStatus] = useState(srd.status[department]);
   const [fields, setFields] = useState(srd[`${department}Fields`] || {});
+  
   const [showFlagDialog, setShowFlagDialog] = useState(false);
   const [flagComment, setFlagComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -200,8 +201,16 @@ export default function DepartmentPanel({
       case 'commercial':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input id="requiredQty" value={fields.requiredQty || ''} onChange={(e) => handleFieldChange('requiredQty', e.target.value)} disabled={!canEdit} />
+            <div className="p-4 border rounded-md bg-gray-50 mb-4">
+                <h4 className="font-medium text-lg text-gray-800 mb-2">VMD Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <p><span className="font-semibold">Fabric Code:</span> {srd.vmdFields?.fabricCode || 'N/A'}</p>
+                    <p><span className="font-semibold">Fabric Type:</span> {srd.vmdFields?.fabricType || 'N/A'}</p>
+                    <p><span className="font-semibold">Color:</span> {srd.vmdFields?.color || 'N/A'}</p>
+                    <p><span className="font-semibold">Fabric Supplier:</span> {srd.vmdFields?.fabricSupplier || 'N/A'}</p>
+                    <p><span className="font-semibold">Sample Request Qty:</span> {srd.vmdFields?.sampleRequestQty || 'N/A'}</p>
+                    <p><span className="font-semibold">Costing Required:</span> {srd.vmdFields?.costingRequired || 'N/A'}</p>
+                </div>
             </div>
 
             <div className="space-y-2">
@@ -286,6 +295,10 @@ export default function DepartmentPanel({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="requiredQty">Required Quantity</Label>
+                    <Input   id="requiredQty" value={fields.requiredQty || ''} onChange={(e) => handleFieldChange('requiredQty', e.target.value)} disabled={!canEdit} />
+                </div>
                 <div>
                     <Label htmlFor="actualDispatchDate">Actual Dispatch Date</Label>
                     <Input id="actualDispatchDate" type="date" value={fields.actualDispatchDate?.split('T')[0] || ''} onChange={(e) => handleFieldChange('actualDispatchDate', e.target.value)} disabled={!canEdit} />

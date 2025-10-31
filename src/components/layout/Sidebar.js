@@ -134,17 +134,7 @@ export default function AppSidebar() {
         <SidebarHeader className={cn("relative", open ? "p-6 pb-8" : "p-4 pb-6")}>
           {/* Logo Section */}
           <div className={cn("relative", !open && "flex flex-col items-center")}>
-            <div className={cn(
-              "bg-gradient-to-br rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 relative overflow-hidden group",
-              roleGradient,
-              open ? "w-14 h-14 mb-4" : "w-10 h-10 mb-3"
-            )}>
-              <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30" />
-              <Sparkles className={cn(
-                "text-white relative z-10",
-                open ? "w-7 h-7" : "w-6 h-6"
-              )} />
-            </div>
+            
             
             {open && (
               <div>
@@ -214,7 +204,7 @@ export default function AppSidebar() {
                           ? "bg-gradient-to-r text-white shadow-lg shadow-blue-500/20"
                           : "hover:bg-white/60 text-gray-700 hover:text-gray-900",
                         isActive && item.gradient,
-                        open ? "h-12 px-4" : "h-12 px-2 mb-2 justify-center"
+                        open ? "h-12 px-4" : "h-12 px-2 mb-2 mt-1 justify-center"
                       )}
                     >
                       <Link href={item.href} className={cn(
