@@ -118,7 +118,7 @@ export default function AppSidebar() {
   }
 
   return (
-    <Sidebar className="border-r-0" collapsible="icon">
+    <Sidebar className="border-r-0 transition-all duration-400" collapsible="icon">
       <div className="h-full bg-gradient-to-br from-slate-50 via-white to-slate-50" onClick={(e) => {
         // Prevent sidebar from auto-expanding on navigation
         if (state === 'collapsed') {
@@ -134,30 +134,12 @@ export default function AppSidebar() {
         <SidebarHeader className={cn("relative", open ? "p-6 pb-8" : "p-4 pb-6")}>
           {/* Logo Section */}
           <div className={cn("relative", !open && "flex flex-col items-center")}>
-            <div className={cn(
-              "bg-gradient-to-br rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 relative overflow-hidden group",
-              roleGradient,
-              open ? "w-14 h-14 mb-4" : "w-10 h-10 mb-3"
-            )}>
-              <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30" />
-              <Sparkles className={cn(
-                "text-white relative z-10",
-                open ? "w-7 h-7" : "w-6 h-6"
-              )} />
-            </div>
             
             {open && (
-              <div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <div className=''>
+                <h2 className="text-xl text-nowrap font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   SRD System
                 </h2>
-                <div className={cn(
-                  "inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-md",
-                  `bg-gradient-to-r ${roleGradient}`
-                )}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
-                  {userRole?.toUpperCase()} Portal
-                </div>
               </div>
             )}
 
