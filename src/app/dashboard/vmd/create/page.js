@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/lib/use-toast';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
+import UploadImage from '@/components/UploadImage';
 
 export default function CreateSRDPage() {
   const { data: session, status } = useSession();
@@ -82,6 +83,8 @@ export default function CreateSRDPage() {
       embroideryArtwork: '',
       embroideryAddOns: ''
     }
+    ,
+    images: []
   });
 
   useEffect(() => {
@@ -157,7 +160,8 @@ export default function CreateSRDPage() {
             beforeWashTrims: formData.beforeWashTrims,
             afterWashTrims: formData.afterWashTrims,
             embellishments: formData.embellishments
-          }
+          },
+          images: formData.images || []
         }),
       });
 
@@ -486,6 +490,17 @@ export default function CreateSRDPage() {
                     value={formData.fabricSupplier}
                     onChange={(e) => handleInputChange('fabricSupplier', e.target.value)}
                   />
+                </div>
+              </div>
+
+              {/* Image upload */}
+              <div>
+                <Label>Images</Label>
+                <div className="mt-2">
+                  <UploadImage onUploaded={(url) => {
+                    // add or replace single image in images array
+                    setFormData(prev => ({ ...prev, images: url ? [url] : [] }));
+                  }} />
                 </div>
               </div>
 

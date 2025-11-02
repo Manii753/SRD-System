@@ -161,6 +161,9 @@ const srdSchema = new mongoose.Schema({
     finishing: { type: String, default: "pending" }
   },
   
+  // Images (optional)
+  images: [String],
+  
   comments: [commentSchema],
   audit: [auditSchema]
 });
