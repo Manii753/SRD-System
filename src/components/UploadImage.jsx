@@ -5,20 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 export default function UploadImage({ onUploaded }) {
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [progress, setProgress] = useState(0);
+  const [files, setFiles] = useState([]); // { file, preview, uploadedUrl, progress }
   const [uploading, setUploading] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState(null);
   const inputRef = useRef(null);
 
-  function handleFiles(selected) {
-    const f = selected[0];
-    if (!f) return;
-    setFile(f);
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target.result);
-    reader.readAsDataURL(f);
+  function makePreview(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFiles(selected) {
+    const list = Array.from(selected || []);
+    if (!list.length) return;
+    const newFiles = await Promise.all(list.map(async (f) => ({ file: f, preview: await makePreview(f), uploadedUrl: null, progress: 0 })));
+    setFiles((prev) => [...prev, ...newFiles]);
   }
 
   function onDrop(e) {
@@ -35,48 +39,66 @@ export default function UploadImage({ onUploaded }) {
     e.stopPropagation();
   }
 
-  async function upload() {
-    if (!file || !preview) return;
-    setUploading(true);
-    setProgress(0);
-
-    // Use XHR so we get upload progress events
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/uploads');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const p = Math.round((e.loaded / e.total) * 100);
-        setProgress(p);
-      }
-    };
-
-    xhr.onload = () => {
-      setUploading(false);
-      try {
-        const res = JSON.parse(xhr.responseText);
-        if (res && res.success && res.url) {
-          setUploadedUrl(res.url);
-          if (onUploaded) onUploaded(res.url);
-        }
-      } catch (err) {
-        console.error('Upload response parse error', err);
-      }
-    };
-
-    xhr.onerror = () => {
-      setUploading(false);
-      console.error('Upload failed');
-    };
-
-    // send file as data URL inside JSON so server can decode easily
-    // preview is a data URL
-    const payload = JSON.stringify({ fileName: file.name, fileData: preview });
-
-    // Slight visual delay so progress shows before immediate send
-    setTimeout(() => xhr.send(payload), 50);
+  function removeFile(index) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   }
+
+  async function uploadAll() {
+    if (!files.length) return;
+    setUploading(true);
+    const uploaded = [];
+
+    for (let i = 0; i < files.length; i++) {
+      // skip if already uploaded
+      if (files[i].uploadedUrl) {
+        uploaded.push(files[i].uploadedUrl);
+        continue;
+      }
+
+      // upload single file and update progress
+      await new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/uploads');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const p = Math.round((e.loaded / e.total) * 100);
+            setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, progress: p } : f));
+          }
+        };
+
+        xhr.onload = () => {
+          try {
+            const res = JSON.parse(xhr.responseText);
+            if (res && res.success && res.url) {
+              setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploadedUrl: res.url, progress: 100 } : f));
+              uploaded.push(res.url);
+            } else {
+              console.error('Upload failed', res?.error);
+            }
+          } catch (err) {
+            console.error('Upload response parse error', err);
+          }
+          resolve(null);
+        };
+
+        xhr.onerror = () => {
+          console.error('Upload failed');
+          resolve(null);
+        };
+
+        const payload = JSON.stringify({ fileName: files[i].file.name, fileData: files[i].preview });
+        setTimeout(() => xhr.send(payload), 50);
+      });
+    }
+
+    setUploading(false);
+    setFiles((prev) => prev.map((f, idx) => ({ ...f }))); // ensure state updated
+    if (onUploaded) onUploaded(uploaded.filter(Boolean));
+  }
+
+  const overallProgress = files.length ? Math.round(files.reduce((acc, f) => acc + (f.progress || 0), 0) / files.length) : 0;
 
   return (
     <div>
@@ -90,43 +112,47 @@ export default function UploadImage({ onUploaded }) {
           ref={inputRef}
           type="file"
           accept="image/*"
+          multiple
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
 
-        {!preview && (
+        {files.length === 0 && (
           <div>
-            <p className="text-gray-600">Drag & drop an image here, or click to select a file</p>
+            <p className="text-gray-600">Drag & drop images here, or click to select files</p>
             <div className="mt-3">
               <Button type="button" variant="outline" onClick={() => inputRef.current && inputRef.current.click()}>
-                Choose Image
+                Choose Images
               </Button>
             </div>
           </div>
         )}
 
-        {preview && (
+        {files.length > 0 && (
           <div className="space-y-3">
-            <img src={preview} alt="preview" className="mx-auto max-h-56 object-contain rounded" />
-
-            <div className="flex items-center justify-center space-x-3">
-              <Button type="button" onClick={() => upload()} disabled={uploading || !!uploadedUrl}>
-                {uploading ? 'Uploading...' : uploadedUrl ? 'Uploaded' : 'Upload'}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => { setFile(null); setPreview(null); setProgress(0); setUploadedUrl(null); if (onUploaded) onUploaded(null); }}>
-                Remove
-              </Button>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+              {files.map((f, i) => (
+                <div key={i} className="relative group">
+                  <img src={f.preview} alt={`preview-${i}`} className="w-full h-24 object-cover rounded" />
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2">
+                    <Button size="sm" onClick={() => removeFile(i)}>Remove</Button>
+                  </div>
+                  {f.uploadedUrl && <div className="absolute right-1 top-1 text-xs text-green-700 bg-white/70 px-1 rounded">Done</div>}
+                </div>
+              ))}
             </div>
 
-            <div>
-              <Progress value={progress} className="h-2" />
-              <div className="text-sm text-gray-600 mt-1 text-center">{progress}%</div>
+            <div className="flex items-center justify-between">
+              <div className="w-2/3">
+                <Progress value={overallProgress} className="h-2" />
+                <div className="text-sm text-gray-600 mt-1">{overallProgress}%</div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button type="button" onClick={uploadAll} disabled={uploading}>{uploading ? 'Uploading...' : 'Upload All'}</Button>
+                <Button type="button" variant="ghost" onClick={() => { setFiles([]); if (onUploaded) onUploaded([]); }}>Clear</Button>
+              </div>
             </div>
           </div>
-        )}
-
-        {uploadedUrl && (
-          <div className="mt-3 text-center text-sm text-green-700">Uploaded: <a href={uploadedUrl} target="_blank" rel="noreferrer" className="underline">{uploadedUrl}</a></div>
         )}
       </div>
     </div>

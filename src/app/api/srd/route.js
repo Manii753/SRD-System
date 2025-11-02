@@ -49,6 +49,7 @@ export async function GET(request) {
       count: count
     });
   } catch (error) {
+    console.error('Error in GET /api/srd:', error);
     return NextResponse.json({
       success: false,
       error: error.message
@@ -61,7 +62,13 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
+  console.log('POST /api/srd body:', JSON.stringify(body).slice(0, 1000));
     
+    // Normalize images array to plain strings to avoid unexpected types (File objects, nested arrays)
+    if (body.images && Array.isArray(body.images)) {
+      body.images = body.images.flat().map((v) => String(v));
+    }
+
     const newSRD = await SRD.create(body);
     
     return NextResponse.json({
@@ -70,6 +77,7 @@ export async function POST(request) {
       message: 'SRD created successfully'
     });
   } catch (error) {
+    console.error('Error in POST /api/srd:', error);
     return NextResponse.json({
       success: false,
       error: error.message

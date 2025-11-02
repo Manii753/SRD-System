@@ -497,9 +497,9 @@ export default function CreateSRDPage() {
               <div>
                 <Label>Images</Label>
                 <div className="mt-2">
-                  <UploadImage onUploaded={(url) => {
-                    // add or replace single image in images array
-                    setFormData(prev => ({ ...prev, images: url ? [url] : [] }));
+                  <UploadImage onUploaded={(urls) => {
+                    // onUploaded now returns an array of uploaded URLs
+                    setFormData(prev => ({ ...prev, images: Array.isArray(urls) ? urls : (urls ? [urls] : []) }));
                   }} />
                 </div>
               </div>

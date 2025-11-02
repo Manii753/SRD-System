@@ -3,7 +3,7 @@ import { AuthProvider } from './providers'
 
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'swap', fallback: ['ui-sans-serif', 'system-ui'] })
 
 export const metadata = {
   title: 'SRD Tracking System',
