@@ -39,11 +39,13 @@ export default function UploadImage({ onUploaded }) {
     e.stopPropagation();
   }
 
-  function removeFile(index) {
+  function removeFile(e, index) {
+    e.stopPropagation();
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function uploadAll() {
+  async function uploadAll(e) {
+    e.stopPropagation();
     if (!files.length) return;
     setUploading(true);
     const uploaded = [];
@@ -121,7 +123,7 @@ export default function UploadImage({ onUploaded }) {
           <div>
             <p className="text-gray-600">Drag & drop images here, or click to select files</p>
             <div className="mt-3">
-              <Button type="button" variant="outline" onClick={() => inputRef.current && inputRef.current.click()}>
+              <Button type="button" variant="outline" onClick={(e) => { e.stopPropagation(); inputRef.current && inputRef.current.click(); }}>
                 Choose Images
               </Button>
             </div>
@@ -135,7 +137,7 @@ export default function UploadImage({ onUploaded }) {
                 <div key={i} className="relative group">
                   <img src={f.preview} alt={`preview-${i}`} className="w-full h-24 object-cover rounded" />
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2">
-                    <Button size="sm" onClick={() => removeFile(i)}>Remove</Button>
+                    <Button size="sm" onClick={(e) => removeFile(e, i)}>Remove</Button>
                   </div>
                   {f.uploadedUrl && <div className="absolute right-1 top-1 text-xs text-green-700 bg-white/70 px-1 rounded">Done</div>}
                 </div>
@@ -149,7 +151,7 @@ export default function UploadImage({ onUploaded }) {
               </div>
               <div className="flex items-center space-x-2">
                 <Button type="button" onClick={uploadAll} disabled={uploading}>{uploading ? 'Uploading...' : 'Upload All'}</Button>
-                <Button type="button" variant="ghost" onClick={() => { setFiles([]); if (onUploaded) onUploaded([]); }}>Clear</Button>
+                <Button type="button" variant="ghost" onClick={(e) => { e.stopPropagation(); setFiles([]); if (onUploaded) onUploaded([]); }}>Clear</Button>
               </div>
             </div>
           </div>
