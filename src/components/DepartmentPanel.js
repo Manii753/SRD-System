@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import Image from 'next/image';
+import ImageModal from '@/components/ImageModal';
 
 export default function DepartmentPanel({
   srd,
@@ -28,6 +29,8 @@ export default function DepartmentPanel({
   const [showFlagDialog, setShowFlagDialog] = useState(false);
   const [flagComment, setFlagComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imageModalIndex, setImageModalIndex] = useState(0);
   console.log('DepartmentPanel fields:', srd.images);
 
   const handleFieldChange = (field, value) => {
@@ -88,16 +91,19 @@ export default function DepartmentPanel({
       case 'vmd':
         return (
           <div className="space-y-4">
-            <div>
+              <div>
                 {srd.images && srd.images.length > 0 && (
                   <div className="flex space-x-2">
-                    {srd.images.map((img) => (
-                      <div key={img} className="flex-shrink-0">
-                        <Image src={img} width={200} height={200} alt="Image" className="rounded" />
+                    {srd.images.map((img, i) => (
+                      <div key={img} className="flex-shrink-0 cursor-pointer" onClick={() => { setImageModalIndex(i); setIsImageModalOpen(true); }}>
+                        <Image src={img} width={100} height={100} alt="Image" className="rounded" />
                       </div>
                     ))}
                   </div>
                 )}
+
+                {/* Image modal */}
+                <ImageModal images={srd.images || []} initialIndex={imageModalIndex} open={isImageModalOpen} onOpenChange={setIsImageModalOpen} />
               </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
