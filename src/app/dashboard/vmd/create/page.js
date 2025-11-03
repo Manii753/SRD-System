@@ -116,7 +116,7 @@ export default function CreateSRDPage() {
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          refNo: `SRD-${Date.now()}`,
+          refNo: formData.refNo,
           createdBy: {
             id: session.user.email,
             name: session.user.name,

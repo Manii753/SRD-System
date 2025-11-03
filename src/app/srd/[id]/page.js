@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import DepartmentPanel from '@/components/DepartmentPanel';
-import CadSubprocessPanel from '@/components/CadSubprocessPanel';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -234,17 +233,6 @@ export default function SRDDetailPage() {
 
             return (
               <TabsContent key={dept} value={dept}>
-                {dept === 'cad' && (
-                  <div className="space-y-6">
-                    <CadSubprocessPanel
-                      srd={srd}
-                      onUpdate={(data) => handleDepartmentUpdate('cad', data)}
-                      isLoading={false}
-                      canEdit={canEdit}
-                    />
-                  </div>
-                )}
-
                 <DepartmentPanel
                   srd={srd}
                   department={dept}

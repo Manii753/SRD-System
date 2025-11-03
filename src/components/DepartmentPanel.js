@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import Image from 'next/image';
 import ImageModal from '@/components/ImageModal';
+import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 export default function DepartmentPanel({
   srd,
@@ -23,6 +25,12 @@ export default function DepartmentPanel({
   isLoading,
   canEdit
 }) {
+
+  const { data: session } = useSession();
+  console.log(session);
+  const authorName = session?.user.name;
+  const role = session?.user.role;
+
   const [status, setStatus] = useState(srd.status[department]);
   const [fields, setFields] = useState(srd[`${department}Fields`] || {});
 
@@ -71,16 +79,22 @@ export default function DepartmentPanel({
 
     if (comment) {
       updateData.comment = {
-        author: 'Current User', // This should come from session
-        role: department,
+        author: authorName, // This should come from session
+        role: role,
         text: comment
       };
     }
 
+    if (department === 'cad' && fields.cadSubprocesses) {
+      updateData.subprocesses = fields.cadSubprocesses;
+    }
+
     try {
       await onUpdate(updateData);
+      toast.success(`${department.toUpperCase()} department updated successfully!`);
     } catch (error) {
       console.error('Update failed:', error);
+      toast.error(`Failed to update ${department.toUpperCase()} department.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -222,7 +236,10 @@ export default function DepartmentPanel({
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input id="requiredQty" value={fields.requiredQty || ''} onChange={(e) => handleFieldChange('requiredQty', e.target.value)} disabled={!canEdit} />
+              <div>
+                <Label htmlFor="requiredQty">Required Quantity</Label>
+                <Input id="requiredQty" value={fields.requiredQty || ''} onChange={(e) => handleFieldChange('requiredQty', e.target.value)} disabled={!canEdit} />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -337,11 +354,11 @@ export default function DepartmentPanel({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="trimInStock">Trim In Stock</Label>
-                <Input id="trimInStock" value={fields.trimInStock || ''} onChange={(e) => handleFieldChange('trimInStock', e.target.value)} disabled={!canEdit} />
+                <Switch id="trimInStock" checked={fields.trimInStock} onCheckedChange={(checked) => handleFieldChange('trimInStock', checked)} disabled={!canEdit} />
               </div>
               <div>
                 <Label htmlFor="orderPlaced">Order Placed</Label>
-                <Input id="orderPlaced" value={fields.orderPlaced || ''} onChange={(e) => handleFieldChange('orderPlaced', e.target.value)} disabled={!canEdit} />
+                <Switch id="orderPlaced" checked={fields.orderPlaced} onCheckedChange={(checked) => handleFieldChange('orderPlaced', checked)} disabled={!canEdit} />
               </div>
               <div>
                 <Label htmlFor="orderPlacedDate">Order Placed Date</Label>

@@ -30,6 +30,7 @@ const srdSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   
   progress: { type: Number, default: 0, min: 0, max: 100 },
+  readyForProduction: { type: Boolean, default: false },
   
   status: {
     vmd: { type: String, enum: ['pending', 'in-progress', 'flagged', 'approved'], default: 'pending' },
@@ -109,28 +110,29 @@ const srdSchema = new mongoose.Schema({
     shrinkage: String,
     width: String,
     beltTracing: String,
-    consumptionWidth: String
+    consumption: String,
+    Width: String
   },
 
   // Commercial Fields
   commercialFields: {
     requiredQty: String,
-    fabricInStock: Boolean,
+    fabricInStock: { type: Boolean, default: false },
     orderPlacedDate: Date,
     fabricReceivedDate: Date,
 
     beforeWashTrims: {
-      inStock: Boolean,
+      inStock: { type: Boolean, default: false },
       orderPlacedDate: Date,
       receivedDate: Date
     },
     afterWashTrims: {
-      inStock: Boolean,
+      inStock: { type: Boolean, default: false },
       orderPlacedDate: Date,
       receivedDate: Date
     },
     embellishments: {
-      inStock: Boolean,
+      inStock: { type: Boolean, default: false },
       orderPlacedDate: Date,
       receivedDate: Date
     },
@@ -145,20 +147,12 @@ const srdSchema = new mongoose.Schema({
 
   // MMC Fields
   mmcFields: {
-    trimInStock: String,
-    orderPlaced: String,
-    orderPlacedDate: String,
-    trimReceivedDate: String,
-    materialSentDate: String,
-    materialReceivedDate: String
-  },
-
-  // CAD Subprocesses
-  cadSubprocesses: {
-    sewing: { type: String, default: "pending" },
-    stitching: { type: String, default: "pending" },
-    cutting: { type: String, default: "pending" },
-    finishing: { type: String, default: "pending" }
+    trimInStock: { type: Boolean, default: false },
+    orderPlaced: { type: Boolean, default: false },
+    orderPlacedDate: Date,
+    trimReceivedDate: Date,
+    materialSentDate: Date,
+    materialReceivedDate: Date
   },
   
   // Images (optional)
@@ -168,12 +162,17 @@ const srdSchema = new mongoose.Schema({
   audit: [auditSchema]
 });
 
-// Calculate progress before saving
-srdSchema.pre('save', function(next) {
-  const approvedCount = Object.values(this.status).filter(status => status === 'approved').length;
+// Calculate progress and readyforproduction before saving
+srdSchema.pre('save', function (next) {
+  const approvedCount = Object.values(this.status).filter(s => s === 'approved').length;
   this.progress = Math.round((approvedCount / 4) * 100);
+
+  // ✅ Ready for production only if all 4 are approved
+  this.readyForProduction = approvedCount === 4;
+
   this.updatedAt = new Date();
   next();
 });
+
 
 export default mongoose.models.SRD || mongoose.model('SRD', srdSchema);

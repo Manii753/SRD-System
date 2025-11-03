@@ -31,11 +31,6 @@ export async function PATCH(request, context) {
       updates[`${dept}Fields`] = { ...(srd[`${dept}Fields`] || {}), ...body.fields };
     }
 
-    // Update CAD subprocesses
-    if (dept === 'cad' && body.cadSubprocesses) {
-      updates.cadSubprocesses = { ...srd.cadSubprocesses, ...body.cadSubprocesses };
-    }
-
     srd.set(updates);
 
     // Add comment if provided

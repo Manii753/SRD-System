@@ -10,6 +10,7 @@ export async function GET(request) {
     const department = searchParams.get('department');
     const status = searchParams.get('status');
     const search = searchParams.get('search');
+    const readyForProduction = searchParams.get('readyForProduction');
     
     let query = {};
 
@@ -30,6 +31,11 @@ export async function GET(request) {
           { 'status.mmc': status },
         ];
       }
+    }
+    
+    // Filter by readyForProduction
+    if (readyForProduction === 'true') {
+      query['readyForProduction'] = true;
     }
     
     // Search by refNo or title

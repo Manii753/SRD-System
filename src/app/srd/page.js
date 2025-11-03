@@ -20,6 +20,7 @@ export default function SRDListPage() {
 
   const departmentFilter = searchParams.get('department') || 'all';
   const statusFilter = searchParams.get('status') || 'all';
+  const readyForProductionFilter = searchParams.get('readyForProduction') === 'true';
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -30,7 +31,7 @@ export default function SRDListPage() {
     }
 
     fetchSRDs();
-  }, [session, status, router, departmentFilter, statusFilter]);
+  }, [session, status, router, departmentFilter, statusFilter, readyForProductionFilter]);
 
   const fetchSRDs = async () => {
     setLoading(true);
@@ -41,6 +42,9 @@ export default function SRDListPage() {
       }
       if (statusFilter !== 'all') {
         query.append('status', statusFilter);
+      }
+      if (readyForProductionFilter) {
+        query.append('readyForProduction', 'true');
       }
       
       const response = await fetch(`/api/srd?${query.toString()}`);
