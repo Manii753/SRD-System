@@ -14,6 +14,7 @@ export default function SRDCard({ srd, department }) {
       case 'in-progress': return 'bg-blue-100 text-blue-800';
       case 'flagged': return 'bg-red-100 text-red-800';
       case 'pending': return 'bg-gray-100 text-gray-800';
+      
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -36,7 +37,7 @@ export default function SRDCard({ srd, department }) {
             <CardDescription className="mt-1">{srd.refNo}</CardDescription>
           </div>
           <Badge className={getStatusColor(srd.status[department])}>
-            {srd.status[department]}
+            {srd.readyForProduction? "Ready For Production": srd.status[department]}
           </Badge>
         </div>
       </CardHeader>

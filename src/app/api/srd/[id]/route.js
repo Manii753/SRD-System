@@ -6,6 +6,7 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
     const resolvedParams = await params;
+    
     const srd = await SRD.findById(resolvedParams.id);
     
     if (!srd) {

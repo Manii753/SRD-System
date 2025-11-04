@@ -11,6 +11,7 @@ import {
   Package,
   Scissors,
   ShoppingCart,
+  BadgeCheckIcon,
   Factory,
   ChevronRight,
   Sparkles,
@@ -39,9 +40,7 @@ const menuItems = {
   vmd: [
     { name: 'Dashboard', href: '/dashboard/vmd', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
     { name: 'Create SRD', href: '/dashboard/vmd/create', icon: FileText, gradient: 'from-emerald-500 to-teal-500' },
-    { name: 'My SRDs', href: '/srd?department=vmd', icon: Package, gradient: 'from-purple-500 to-pink-500' },
-    { name: 'Pending Reviews', href: '/srd?status=pending', icon: FileText, gradient: 'from-amber-500 to-orange-500' },
-    { name: 'Ready For Production', href: '/srd?readyForProduction=true', icon: Factory, gradient: 'from-green-500 to-emerald-500' },
+    { name: 'Ready For Production', href: '/srd?readyForProduction=true', icon: BadgeCheckIcon, gradient: 'from-green-500 to-emerald-500' },
   ],
   cad: [
     { name: 'Dashboard', href: '/dashboard/cad', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },

@@ -150,7 +150,7 @@ export default function SRDTable({ srds, department }) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Badge className={getStatusColor(srd.status[department])}>
-                    {srd.status[department]}
+                    {srd.readyForProduction? "Ready For Production": srd.status[department]}
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

@@ -31,6 +31,8 @@ const srdSchema = new mongoose.Schema({
   
   progress: { type: Number, default: 0, min: 0, max: 100 },
   readyForProduction: { type: Boolean, default: false },
+  inProduction: { type: Boolean, default: false },
+  
   
   status: {
     vmd: { type: String, enum: ['pending', 'in-progress', 'flagged', 'approved'], default: 'pending' },
