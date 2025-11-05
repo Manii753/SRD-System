@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import SRD from '@/models/SRD';
+import User from '@/models/User';
+import Notification from '@/models/Notification';
+import pusher from '@/lib/pusher-server';
 
 export async function GET(request) {
   try {
@@ -76,6 +79,22 @@ export async function POST(request) {
     }
 
     const newSRD = await SRD.create(body);
+
+    // Create notifications for all users
+    const users = await User.find({});
+    const notificationPromises = users.map(user => {
+      return Notification.create({
+        user: user._id,
+        srd: newSRD._id,
+        message: `New SRD created: ${newSRD.refNo}`,
+      });
+    });
+    await Promise.all(notificationPromises);
+
+    // Trigger Pusher event
+    await pusher.trigger('srd-events', 'srd:new', newSRD);
+    console.log('Pusher event triggered: srd:new', newSRD);
+    
     
     return NextResponse.json({
       success: true,

@@ -34,7 +34,7 @@ export const getPusherChannel = () => {
   }
   
   if (!channel) {
-    channel = pusher.subscribe('srds');
+    channel = pusher.subscribe('srd-events');
   }
   
   return channel;
