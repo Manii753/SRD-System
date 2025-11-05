@@ -78,29 +78,40 @@ export async function POST(request) {
       body.images = body.images.flat().map((v) => String(v));
     }
 
-    const newSRD = await SRD.create(body);
+    // If refNo is not provided or empty, generate a server-side refNo
+    const generateRefNo = () => {
+      const d = new Date();
+      const pad = (n, l = 2) => String(n).padStart(l, '0');
+      const ts = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}-${d.getMilliseconds()}`;
+      return `SRD${ts}-${Math.floor(Math.random() * 9000) + 1000}`;
+    };
 
-    // Create notifications for all users
-    const users = await User.find({});
-    const notificationPromises = users.map(user => {
-      return Notification.create({
-        user: user._id,
-        srd: newSRD._id,
-        message: `New SRD created: ${newSRD.refNo}`,
-      });
-    });
-    await Promise.all(notificationPromises);
+    if (!body.refNo || !String(body.refNo).trim()) {
+      body.refNo = generateRefNo();
+    }
 
-    // Trigger Pusher event
-    await pusher.trigger('srd-events', 'srd:new', newSRD);
-    console.log('Pusher event triggered: srd:new', newSRD);
-    
-    
-    return NextResponse.json({
-      success: true,
-      data: newSRD,
-      message: 'SRD created successfully'
-    });
+    // Try creating the SRD; if there's a refNo duplicate key error, retry with a new refNo a few times
+    let attempts = 0;
+    const maxAttempts = 5;
+    while (true) {
+      try {
+        const newSRD = await SRD.create(body);
+        return NextResponse.json({
+          success: true,
+          data: newSRD,
+          message: 'SRD created successfully'
+        });
+      } catch (err) {
+        // Duplicate key on refNo -> regenerate and retry
+        const isDuplicateRef = err && (err.code === 11000 || (err.name === 'MongoServerError' && err.code === 11000)) && err.message && err.message.includes('refNo');
+        if (isDuplicateRef && attempts < maxAttempts) {
+          attempts++;
+          body.refNo = generateRefNo();
+          continue;
+        }
+        throw err;
+      }
+    }
   } catch (error) {
     console.error('Error in POST /api/srd:', error);
     return NextResponse.json({
