@@ -36,7 +36,7 @@ export default function SRDTable({ srds, department }) {
     .filter(srd => {
       const matchesSearch = srd.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            srd.refNo.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = filterStatus === 'all' || srd.status[department] === filterStatus;
+      const matchesStatus = filterStatus === 'all' || (srd.status && srd.status[department] === filterStatus);
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -149,8 +149,8 @@ export default function SRDTable({ srds, department }) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge className={getStatusColor(srd.status[department])}>
-                    {srd.readyForProduction? "Ready For Production": srd.status[department]}
+                  <Badge className={getStatusColor(department === 'admin' ? (srd.readyForProduction ? 'approved' : 'in-progress') : (srd.status ? srd.status[department] : 'pending'))}>
+                    {department === 'admin' ? (srd.readyForProduction ? "Ready" : "In Progress") : (srd.status ? srd.status[department] : 'pending')}
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

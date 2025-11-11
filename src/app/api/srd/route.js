@@ -90,6 +90,15 @@ export async function POST(request) {
     }
     console.log('Sanitized dynamicFields:', JSON.stringify(body.dynamicFields));
 
+    // --- Initialize status for all departments ---
+    const Department = require('@/models/Department').default;
+    const allDepartments = await Department.find({});
+    const initialStatus = new Map();
+    allDepartments.forEach(dept => {
+      initialStatus.set(dept.slug, 'pending');
+    });
+    body.status = initialStatus;
+
     // --- Generate unique refNo if not provided ---
     const generateRefNo = () => {
       const d = new Date();

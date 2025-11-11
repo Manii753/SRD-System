@@ -237,7 +237,13 @@ export default function CreateSRDPage() {
                           <Textarea value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
                         ) : def.type === 'number' ? (
                           <Input type="number" value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
-                        ) : def.type === 'date' ? (
+                        ) : def.type === 'image' ? (
+                          <div>
+                            <div className="mt-2">
+                              <UploadImage onUploaded={(urls) => setFormData(prev => ({ ...prev, images: Array.isArray(urls) ? urls : (urls ? [urls] : []) }))} />
+                            </div>
+                          </div>
+                        ): def.type === 'date' ? (
                           <Input type="date" value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
                         ) : def.type === 'boolean' ? (
                           <label className="inline-flex items-center space-x-2">
@@ -246,7 +252,7 @@ export default function CreateSRDPage() {
                           </label>
                         ) : (
                           <Input value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} placeholder={def.placeholder || ''} />
-                        )}
+                        ) }
                       </div>
                     );
                   })}
@@ -254,12 +260,7 @@ export default function CreateSRDPage() {
               )}
 
               {/* Image upload */}
-              <div>
-                <Label>Images</Label>
-                <div className="mt-2">
-                  <UploadImage onUploaded={(urls) => setFormData(prev => ({ ...prev, images: Array.isArray(urls) ? urls : (urls ? [urls] : []) }))} />
-                </div>
-              </div>
+              
             </CardContent>
           </Card>
 

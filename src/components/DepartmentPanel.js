@@ -31,7 +31,7 @@ export default function DepartmentPanel({
   const role = session?.user?.role;
 
   const [status, setStatus] = useState(srd.status[department]);
-  const [fields, setFields] = useState(srd[`${department}Fields`] || {});
+  const [fields, setFields] = useState(srd.dynamicFields.filter(f => f.department === department));
   const [fieldDefs, setFieldDefs] = useState([]); 
 
   const [showFlagDialog, setShowFlagDialog] = useState(false);
@@ -46,7 +46,7 @@ export default function DepartmentPanel({
   useEffect(() => {
     async function fetchFields() {
       try {
-        const res = await fetch('/api/newField');
+        const res = await fetch(`/api/newField?department=${department}`);
         const data = await res.json();
         const activeFields = Array.isArray(data) ? data.filter(f => f.active) : [];
         setFieldDefs(activeFields);
@@ -55,13 +55,20 @@ export default function DepartmentPanel({
       }
     }
     fetchFields();
-  }, []);
+  }, [department]);
 
   const handleFieldChange = (name, value) => {
-    setFields(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFields(prev => {
+      const existingFieldIndex = prev.findIndex(f => f.name === name);
+      if (existingFieldIndex > -1) {
+        const newFields = [...prev];
+        newFields[existingFieldIndex] = { ...newFields[existingFieldIndex], value };
+        return newFields;
+      } else {
+        // This case should ideally not happen if fields are correctly initialized
+        return [...prev, { name, value, department }];
+      }
+    });
   };
 
   const handleStatusChange = (newStatus) => {
@@ -86,9 +93,8 @@ export default function DepartmentPanel({
     setIsSubmitting(true);
 
     const updateData = {
-      status: newStatus,
+      status: { [department]: newStatus },
       fields,
-      department,
     };
 
     if (comment) {
@@ -100,7 +106,7 @@ export default function DepartmentPanel({
     }
 
     try {
-      await onUpdate(updateData);
+      await onUpdate(department, updateData);
       toast.success(`${department.toUpperCase()} department updated successfully!`);
     } catch (error) {
       console.error('Update failed:', error);
@@ -111,11 +117,7 @@ export default function DepartmentPanel({
   };
 
   const renderDynamicFields = () => {
-    const deptFields = fieldDefs.filter(
-      (f) => f.department === department || f.department === 'global'
-    );
-
-    if (!deptFields.length)
+    if (!fieldDefs.length)
       return (
         <Alert>
           <AlertCircle className="h-4 w-4" />
@@ -127,9 +129,9 @@ export default function DepartmentPanel({
 
     return (
       <div className="space-y-6">
-        {deptFields.map((field) => {
-          const { _id, name, label, type, placeholder, isRequired } = field;
-          const value = fields[name] ?? '';
+        {fieldDefs.map((field) => {
+          const { _id, name, type, placeholder, isRequired } = field;
+          const fieldValue = fields.find(f => f.name === name)?.value ?? '';
 
           switch (type) {
             case 'text':
@@ -137,12 +139,12 @@ export default function DepartmentPanel({
             case 'date':
               return (
                 <div key={_id}>
-                  <Label htmlFor={name}>{label || name}</Label>
+                  <Label htmlFor={name}>{name}</Label>
                   <Input
                     id={name}
                     type={type}
                     placeholder={placeholder || ''}
-                    value={value}
+                    value={fieldValue}
                     onChange={(e) => handleFieldChange(name, e.target.value)}
                     required={isRequired}
                     disabled={!canEdit}
@@ -153,11 +155,11 @@ export default function DepartmentPanel({
             case 'textarea':
               return (
                 <div key={_id}>
-                  <Label htmlFor={name}>{label || name}</Label>
+                  <Label htmlFor={name}>{name}</Label>
                   <Textarea
                     id={name}
                     placeholder={placeholder || ''}
-                    value={value}
+                    value={fieldValue}
                     onChange={(e) => handleFieldChange(name, e.target.value)}
                     required={isRequired}
                     disabled={!canEdit}
@@ -168,10 +170,10 @@ export default function DepartmentPanel({
             case 'boolean':
               return (
                 <div key={_id} className="flex items-center justify-between">
-                  <Label htmlFor={name}>{label || name}</Label>
+                  <Label htmlFor={name}>{name}</Label>
                   <Switch
                     id={name}
-                    checked={!!value}
+                    checked={!!fieldValue}
                     onCheckedChange={(checked) =>
                       handleFieldChange(name, checked)
                     }
@@ -182,10 +184,10 @@ export default function DepartmentPanel({
 
             case 'image':
               // Get department-specific images for *this* field
-              const deptImages = Array.isArray(value)
-                ? value
-                : value
-                  ? [value]
+              const deptImages = Array.isArray(fieldValue)
+                ? fieldValue
+                : fieldValue
+                  ? [fieldValue]
                   : [];
               
               const globalImages = Array.isArray(srd.images) ? srd.images : [];
@@ -193,7 +195,7 @@ export default function DepartmentPanel({
 
               return (
                 <div key={_id}>
-                  <Label>{label || name}</Label>
+                  <Label>{name}</Label>
                   {allImages.length > 0 ? (
                     <div className="grid grid-cols-3 gap-3 mt-2">
                       {allImages.map((src, idx) => (

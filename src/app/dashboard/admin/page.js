@@ -55,9 +55,13 @@ export default function AdminDashboard() {
   const getStats = () => {
     const totalSRDs = srds.length;
     const completedSRDs = srds.filter(srd => srd.progress === 100).length;
-    const flaggedSRDs = srds.filter(srd => 
-      Object.values(srd.status).includes('flagged')
-    ).length;
+    const flaggedSRDs = srds.filter(srd => {
+      if (!srd.status) return false;
+      for (let status of Object.values(srd.status)) {
+        if (status === 'flagged') return true;
+      }
+      return false;
+    }).length;
     const totalUsers = users.length;
     
     return { totalSRDs, completedSRDs, flaggedSRDs, totalUsers };
@@ -161,6 +165,10 @@ export default function AdminDashboard() {
               <Button className="w-full justify-start" variant="outline" onClick={() => router.push('/srdfields')}>
                 <Settings className="h-4 w-4 mr-2" />
                 Manage SRD Fields
+              </Button>
+              <Button className="w-full justify-start" variant="outline" onClick={() => router.push('/dashboard/admin/departments')}>
+                <Settings className="h-4 w-4 mr-2" />
+                Manage Departments
               </Button>
             </CardContent>
           </Card>

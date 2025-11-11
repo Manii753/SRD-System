@@ -204,7 +204,7 @@ export default function SRDDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(srd.status).map(([dept, status]) => (
+              {srd.status && Object.entries(srd.status).map(([dept, status]) => (
                 <div key={dept} className="text-center">
                   <Badge className={getStatusColor(status)}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -221,14 +221,14 @@ export default function SRDDetailPage() {
         {/* Department Tabs */}
         <Tabs defaultValue={userRole} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            {(canViewAll ? ['vmd', 'cad', 'commercial', 'mmc'] : [userRole]).map((dept) => (
+            {(canViewAll ? Object.keys(srd.status) : [userRole]).map((dept) => (
               <TabsTrigger key={dept} value={dept}>
                 {dept.toUpperCase()}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {Object.keys(srd.status).map((dept) => {
+          {srd.status && Object.keys(srd.status).map((dept) => {
             const canEdit = userRole === dept || userRole === 'admin';
 
             return (
