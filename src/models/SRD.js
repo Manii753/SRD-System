@@ -159,6 +159,19 @@ const srdSchema = new mongoose.Schema({
   
   // Images (optional)
   images: [String],
+
+  // Dynamic fields (new non-breaking addition)
+  // Each entry stores a snapshot of the field definition plus the value used for this SRD.
+  // This allows field definitions to change or be deleted without losing SRD data.
+  dynamicFields: [{
+    field: { type: mongoose.Schema.Types.ObjectId, ref: 'Field' },
+    department: { type: String },
+    name: { type: String },
+    slug: { type: String },
+    type: { type: String },
+    value: { type: mongoose.Schema.Types.Mixed },
+    isRequired: { type: Boolean, default: false }
+  }],
   
   comments: [commentSchema],
   audit: [auditSchema]

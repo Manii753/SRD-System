@@ -1,71 +1,93 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import Image from 'next/image';
 
 export default function UploadImage({ onUploaded }) {
   const [files, setFiles] = useState([]); // { file, preview, uploadedUrl, progress }
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef(null);
 
-  function makePreview(file) {
+  const makePreview = useCallback((file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
-  }
+  }, []);
 
-  async function handleFiles(selected) {
+  const handleFiles = useCallback(async (selected) => {
     const list = Array.from(selected || []);
     if (!list.length) return;
     const newFiles = await Promise.all(list.map(async (f) => ({ file: f, preview: await makePreview(f), uploadedUrl: null, progress: 0 })));
     setFiles((prev) => [...prev, ...newFiles]);
-  }
+  }, [makePreview]);
 
-  function onDrop(e) {
+  const onDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     const dt = e.dataTransfer;
     if (dt && dt.files && dt.files.length) {
       handleFiles(dt.files);
     }
-  }
+  }, [handleFiles]);
 
-  function onDragOver(e) {
+  const onDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
-  }
+  };
 
-  function removeFile(e, index) {
+  const removeFile = useCallback((e, index) => {
     e.stopPropagation();
     setFiles((prev) => prev.filter((_, i) => i !== index));
-  }
+  }, []);
 
-  async function uploadAll(e) {
+  // Handle paste (Ctrl+V) for images (screenshots)
+  const handlePaste = useCallback(async (e) => {
+    if (!e.clipboardData) return;
+    const items = Array.from(e.clipboardData.items || []);
+    const imageItems = items.filter(i => i.type.startsWith('image'));
+    if (!imageItems.length) return;
+
+    const filesToHandle = [];
+    for (const it of imageItems) {
+      const file = it.getAsFile();
+      if (file) filesToHandle.push(file);
+    }
+    if (filesToHandle.length) {
+      await handleFiles(filesToHandle);
+    }
+  }, [handleFiles]);
+
+  // register global paste handler so Ctrl+V works anywhere on page
+  useEffect(() => {
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [handlePaste]);
+
+  const uploadAll = useCallback(async (e) => {
     e.stopPropagation();
     if (!files.length) return;
     setUploading(true);
     const uploaded = [];
 
     for (let i = 0; i < files.length; i++) {
-      // skip if already uploaded
       if (files[i].uploadedUrl) {
         uploaded.push(files[i].uploadedUrl);
         continue;
       }
 
-      // upload single file and update progress
       await new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/uploads');
         xhr.setRequestHeader('Content-Type', 'application/json');
 
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const p = Math.round((e.loaded / e.total) * 100);
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const p = Math.round((event.loaded / event.total) * 100);
             setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, progress: p } : f));
           }
         };
@@ -96,9 +118,8 @@ export default function UploadImage({ onUploaded }) {
     }
 
     setUploading(false);
-    setFiles((prev) => prev.map((f, idx) => ({ ...f }))); // ensure state updated
     if (onUploaded) onUploaded(uploaded.filter(Boolean));
-  }
+  }, [files, onUploaded]);
 
   const overallProgress = files.length ? Math.round(files.reduce((acc, f) => acc + (f.progress || 0), 0) / files.length) : 0;
 
@@ -109,6 +130,7 @@ export default function UploadImage({ onUploaded }) {
         onDragOver={onDragOver}
         className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
         onClick={() => inputRef.current && inputRef.current.click()}
+        onPaste={handlePaste}
       >
         <input
           ref={inputRef}
@@ -135,7 +157,7 @@ export default function UploadImage({ onUploaded }) {
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
               {files.map((f, i) => (
                 <div key={i} className="relative group">
-                  <img src={f.preview} alt={`preview-${i}`} className="w-full h-24 object-cover rounded" />
+                  <Image src={f.preview} alt={`preview-${i}`} width={96} height={96} className="w-full h-24 object-cover rounded" />
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2">
                     <Button size="sm" onClick={(e) => removeFile(e, i)}>Remove</Button>
                   </div>

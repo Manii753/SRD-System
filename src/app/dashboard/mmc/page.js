@@ -3,12 +3,13 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import SRDCard from '@/components/SRDCard';
 import SRDTable from '@/components/SRDTable';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Factory, Clock, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import { Factory, Clock, CheckCircle, AlertCircle, Package, Plus } from 'lucide-react';
 
 export default function MMCDashboard() {
   const { data: session, status } = useSession();
@@ -68,9 +69,17 @@ export default function MMCDashboard() {
     <Layout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">MMC Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage manufacturing and quality control</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">MMC Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage manufacturing and quality control</p>
+          </div>
+          <Link href="/dashboard/mmc/create">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create SRD
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Cards */}

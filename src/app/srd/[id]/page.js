@@ -38,38 +38,38 @@ export default function SRDDetailPage() {
       return;
     }
 
+    const fetchSRD = async () => {
+      try {
+        const response = await fetch(`/api/srd/${params.id}`);
+        const data = await response.json();
+        if (data.success) {
+          setSrd(data.data);
+        } else {
+          router.push('/dashboard/vmd');
+        }
+      } catch (error) {
+        console.error('Error fetching SRD:', error);
+        router.push('/dashboard/vmd');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTimeline = async () => {
+      try {
+        const response = await fetch(`/api/srd/${params.id}/timeline`);
+        const data = await response.json();
+        if (data.success) {
+          setTimeline(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching timeline:', error);
+      }
+    };
+
     fetchSRD();
     fetchTimeline();
   }, [session, status, router, params.id]);
-
-  const fetchSRD = async () => {
-    try {
-      const response = await fetch(`/api/srd/${params.id}`);
-      const data = await response.json();
-      if (data.success) {
-        setSrd(data.data);
-      } else {
-        router.push('/dashboard/vmd');
-      }
-    } catch (error) {
-      console.error('Error fetching SRD:', error);
-      router.push('/dashboard/vmd');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTimeline = async () => {
-    try {
-      const response = await fetch(`/api/srd/${params.id}/timeline`);
-      const data = await response.json();
-      if (data.success) {
-        setTimeline(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching timeline:', error);
-    }
-  };
 
   const handleDepartmentUpdate = async (department, updateData) => {
     try {

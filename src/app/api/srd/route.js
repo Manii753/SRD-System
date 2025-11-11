@@ -81,6 +81,15 @@ export async function POST(request) {
       body.images = body.images.flat().map((v) => String(v));
     }
 
+    // Ensure dynamicFields is properly formatted as an array of objects
+    if (body.dynamicFields && typeof body.dynamicFields === 'string') {
+      body.dynamicFields = JSON.parse(body.dynamicFields);
+    }
+    if (!Array.isArray(body.dynamicFields)) {
+      body.dynamicFields = [];
+    }
+    console.log('Sanitized dynamicFields:', JSON.stringify(body.dynamicFields));
+
     // --- Generate unique refNo if not provided ---
     const generateRefNo = () => {
       const d = new Date();
@@ -131,9 +140,15 @@ export async function POST(request) {
     );
     await Promise.all(notificationPromises);
 
-    // --- Trigger Pusher event ---
-    await pusher.trigger('srd-events', 'srd:new', newSRD);
-    console.log('Pusher event triggered: srd:new', newSRD.refNo);
+    // --- Trigger Pusher event (non-blocking, optional) ---
+    try {
+      if (process.env.PUSHER_APP_ID && process.env.PUSHER_SECRET) {
+        await pusher.trigger('srd-events', 'srd:new', newSRD);
+        console.log('Pusher event triggered: srd:new', newSRD.refNo);
+      }
+    } catch (pusherError) {
+      console.warn('Pusher trigger failed (non-blocking):', pusherError.message);
+    }
 
     return NextResponse.json({
       success: true,

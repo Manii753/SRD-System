@@ -17,6 +17,9 @@ import {
   Sparkles,
   PanelLeftClose,
   PanelLeftOpen,
+  FileSpreadsheet,
+  LineChart,
+  Edit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -34,6 +37,7 @@ const menuItems = {
   admin: [
     { name: 'Dashboard', href: '/dashboard/admin', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
     { name: 'All SRDs', href: '/srd', icon: FileText, gradient: 'from-purple-500 to-pink-500' },
+    { name: 'Edit SRD Fields', href: '/srdfields', icon: Edit, gradient: 'from-purple-500 to-pink-500' },
     { name: 'Users', href: '/users', icon: Users, gradient: 'from-orange-500 to-red-500' },
     { name: 'Settings', href: '/settings', icon: Settings, gradient: 'from-gray-500 to-slate-600' },
   ],

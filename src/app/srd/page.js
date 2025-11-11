@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Layout from '@/components/layout/Layout';
 import SRDCard from '@/components/SRDCard';
 import SRDTable from '@/components/SRDTable';
@@ -10,7 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 
-export default function SRDListPage() {
+function SRDListPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,34 +30,34 @@ export default function SRDListPage() {
       return;
     }
 
+    const fetchSRDs = async () => {
+      setLoading(true);
+      try {
+        const query = new URLSearchParams();
+        if (departmentFilter !== 'all') {
+          query.append('department', departmentFilter);
+        }
+        if (statusFilter !== 'all') {
+          query.append('status', statusFilter);
+        }
+        if (readyForProductionFilter) {
+          query.append('readyForProduction', 'true');
+        }
+        
+        const response = await fetch(`/api/srd?${query.toString()}`);
+        const data = await response.json();
+        if (data.success) {
+          setSRDs(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching SRDs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSRDs();
   }, [session, status, router, departmentFilter, statusFilter, readyForProductionFilter]);
-
-  const fetchSRDs = async () => {
-    setLoading(true);
-    try {
-      const query = new URLSearchParams();
-      if (departmentFilter !== 'all') {
-        query.append('department', departmentFilter);
-      }
-      if (statusFilter !== 'all') {
-        query.append('status', statusFilter);
-      }
-      if (readyForProductionFilter) {
-        query.append('readyForProduction', 'true');
-      }
-      
-      const response = await fetch(`/api/srd?${query.toString()}`);
-      const data = await response.json();
-      if (data.success) {
-        setSRDs(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching SRDs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -120,5 +120,13 @@ export default function SRDListPage() {
         )}
       </div>
     </Layout>
+  );
+}
+
+export default function SRDListPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SRDListPageContent />
+    </Suspense>
   );
 }

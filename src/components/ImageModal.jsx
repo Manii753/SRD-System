@@ -10,6 +10,7 @@ export default function ImageModal({ images = [], initialIndex = 0, open, onOpen
   const [index, setIndex] = useState(initialIndex || 0);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) setIndex(initialIndex || 0);
   }, [open, initialIndex]);
 

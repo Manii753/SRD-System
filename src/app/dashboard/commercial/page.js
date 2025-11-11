@@ -3,12 +3,13 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import SRDCard from '@/components/SRDCard';
 import SRDTable from '@/components/SRDTable';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Clock, CheckCircle, AlertCircle, DollarSign } from 'lucide-react';
+import { ShoppingCart, Clock, CheckCircle, AlertCircle, DollarSign, Plus } from 'lucide-react';
 
 export default function CommercialDashboard() {
   const { data: session, status } = useSession();
@@ -68,9 +69,17 @@ export default function CommercialDashboard() {
     <Layout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Commercial Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage supplier quotations and procurement</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Commercial Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage supplier quotations and procurement</p>
+          </div>
+          <Link href="/dashboard/commercial/create">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create SRD
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Cards */}

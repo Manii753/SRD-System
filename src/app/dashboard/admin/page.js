@@ -158,6 +158,10 @@ export default function AdminDashboard() {
                 <Settings className="h-4 w-4 mr-2" />
                 System Settings
               </Button>
+              <Button className="w-full justify-start" variant="outline" onClick={() => router.push('/srdfields')}>
+                <Settings className="h-4 w-4 mr-2" />
+                Manage SRD Fields
+              </Button>
             </CardContent>
           </Card>
 

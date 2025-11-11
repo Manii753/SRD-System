@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/lib/use-toast';
 import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -27,35 +26,26 @@ export default function CreateSRDPage() {
     images: []
   });
 
+  // dynamic fields fetched from DB for CAD department
   const [dynamicDefs, setDynamicDefs] = useState([]);
   const [dynamicValues, setDynamicValues] = useState({});
 
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (!session || session.user.role !== 'vmd') {
+    if (!session || session.user.role !== 'cad') {
       router.push('/login');
       return;
     }
-    
+    // fetch dynamic fields for CAD department
     (async function fetchDynamic() {
       try {
-        // 🔹 FIX 1: Fetch ALL fields, not just 'vmd'
-        const res = await fetch('/api/newField'); 
+        const res = await fetch('/api/newField?department=cad');
         const data = await res.json();
-        
         if (Array.isArray(data)) {
-          // 🔹 Filter for active fields for 'vmd' OR 'global'
-          const activeFields = data.filter(
-            (f) => f.active && (f.department === 'vmd' || f.department === 'global')
-          );
-          setDynamicDefs(activeFields);
-
-          // 🔹 FIX 2: Use field 'name' as the key, not '_id'
+          setDynamicDefs(data);
           const initial = {};
-          activeFields.forEach(d => { 
-            initial[d.name] = d.defaultValue || ''; 
-          });
+          data.forEach(d => { initial[d._id] = d.defaultValue || ''; });
           setDynamicValues(initial);
         }
       } catch (err) {
@@ -71,9 +61,8 @@ export default function CreateSRDPage() {
     }));
   };
 
-  // 🔹 FIX 2 (Handler): Use 'name' as the key
-  const handleDynamicChange = (name, value) => {
-    setDynamicValues(prev => ({ ...prev, [name]: value }));
+  const handleDynamicChange = (id, value) => {
+    setDynamicValues(prev => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -81,10 +70,10 @@ export default function CreateSRDPage() {
     setLoading(true);
 
     try {
-      // 🔹 FIX 2 (Validation): Validate using 'def.name'
+      // validate required dynamic fields
       for (const def of dynamicDefs) {
         if (def.isRequired) {
-          const val = dynamicValues[def.name]; // Use name
+          const val = dynamicValues[def._id];
           if (val === undefined || val === null || String(val).trim() === '') {
             toast({ title: 'Validation', description: `Please fill required field: ${def.name}`, variant: 'destructive' });
             setLoading(false);
@@ -92,7 +81,6 @@ export default function CreateSRDPage() {
           }
         }
       }
-      
       const response = await fetch('/api/srd', {
         method: 'POST',
         headers: {
@@ -113,21 +101,16 @@ export default function CreateSRDPage() {
             commercial: 'pending',
             mmc: 'pending'
           },
-          
-          // 🔹 FIX 3: Pass the 'dynamicValues' object to 'vmdFields'
-          vmdFields: dynamicValues, 
-
+          cadFields: {},
           images: formData.images || [],
-          
-          // This archival array also needs to use 'd.name' to get the value
+          // include dynamic fields snapshot so SRD stores values independent of future field changes
           dynamicFields: dynamicDefs.map(d => ({
             field: d._id,
-            department: d.department || 'vmd',
+            department: d.department || 'cad',
             name: d.name,
             slug: d.slug || d.name.replace(/\s+/g, '_').toLowerCase(),
             type: d.type,
-            // 🔹 FIX 2 (Payload): Get value from state using 'd.name'
-            value: dynamicValues[d.name] ?? null, 
+            value: dynamicValues[d._id] ?? null,
             isRequired: !!d.isRequired
           }))
         }),
@@ -174,7 +157,7 @@ export default function CreateSRDPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-6">
-          <Link href="/dashboard/vmd">
+          <Link href="/dashboard/cad">
             <Button variant="outline" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -216,36 +199,34 @@ export default function CreateSRDPage() {
             </CardContent>
           </Card>
 
-          {/* VMD Details */}
+          {/* CAD Fields */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">VMD Fields</CardTitle>
+              <CardTitle className="text-lg font-semibold">CAD Fields</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {dynamicDefs.length === 0 ? (
-                <div className="text-gray-600">No dynamic fields defined for VMD. Add fields from Admin → Manage SRD Fields.</div>
+                <div className="text-gray-600">No dynamic fields defined for CAD. Add fields from Admin → Manage SRD Fields.</div>
               ) : (
                 <div className="space-y-4">
                   {dynamicDefs.map((def) => {
-                    // 🔹 FIX 2 (Renderer): Get value using 'def.name'
-                    const val = dynamicValues[def.name] ?? ''; 
+                    const val = dynamicValues[def._id] ?? '';
                     return (
                       <div key={def._id}>
                         <Label>{def.name}{def.isRequired ? ' *' : ''}</Label>
-                        {/* 🔹 Pass 'def.name' to the change handler */}
                         {def.type === 'textarea' ? (
-                          <Textarea value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
+                          <Textarea value={val} onChange={(e) => handleDynamicChange(def._id, e.target.value)} />
                         ) : def.type === 'number' ? (
-                          <Input type="number" value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
+                          <Input type="number" value={val} onChange={(e) => handleDynamicChange(def._id, e.target.value)} />
                         ) : def.type === 'date' ? (
-                          <Input type="date" value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} />
+                          <Input type="date" value={val} onChange={(e) => handleDynamicChange(def._id, e.target.value)} />
                         ) : def.type === 'boolean' ? (
                           <label className="inline-flex items-center space-x-2">
-                            <input type="checkbox" checked={!!val} onChange={(e) => handleDynamicChange(def.name, e.target.checked)} />
+                            <input type="checkbox" checked={!!val} onChange={(e) => handleDynamicChange(def._id, e.target.checked)} />
                             <span className="text-sm text-gray-700">{def.placeholder || ''}</span>
                           </label>
                         ) : (
-                          <Input value={val} onChange={(e) => handleDynamicChange(def.name, e.target.value)} placeholder={def.placeholder || ''} />
+                          <Input value={val} onChange={(e) => handleDynamicChange(def._id, e.target.value)} placeholder={def.placeholder || ''} />
                         )}
                       </div>
                     );
@@ -265,7 +246,7 @@ export default function CreateSRDPage() {
 
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-4">
-            <Link href="/dashboard/vmd">
+            <Link href="/dashboard/cad">
               <Button type="button" variant="outline">
                 Cancel
               </Button>
