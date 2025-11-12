@@ -146,6 +146,7 @@ export default function DepartmentFieldsPage() {
                         <SelectItem value="number">Number</SelectItem>
                         <SelectItem value="date">Date</SelectItem>
                         <SelectItem value="textarea">Textarea</SelectItem>
+                        <SelectItem value="image">Image</SelectItem>
                         <SelectItem value="boolean">Checkbox (Yes/No)</SelectItem>
                       </SelectContent>
                     </Select>
