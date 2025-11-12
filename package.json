@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "seed": "node src/lib/seed.js"
+    "seed": "node src/lib/seed.js",
+    "seed:dynamic": "node src/lib/seedDynamic.js",
+    "migrate:users": "node src/lib/migrateUsers.js",
+    "fix:srd-status": "node src/lib/fixSRDStatus.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

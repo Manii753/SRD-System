@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import DepartmentPanel from '@/components/DepartmentPanel';
+import ProductionControl from '@/components/ProductionControl';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -217,6 +218,15 @@ export default function SRDDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Production Control - Only for Production Manager */}
+        {(userRole === 'production-manager' || userRole === 'admin') && (
+          <ProductionControl 
+            srdId={srd._id} 
+            initialData={srd}
+            onUpdate={(updatedSrd) => setSrd(updatedSrd)}
+          />
+        )}
 
         {/* Department Tabs */}
         <Tabs defaultValue={userRole} className="w-full">

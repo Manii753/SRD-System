@@ -32,26 +32,25 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Invalid email or password');
       } else {
-        // Redirect based on role
-        const userRole = email.split('@')[0]; // Simple role detection from email
-        switch (userRole) {
-          case 'vmd':
-            router.push('/dashboard/vmd');
-            break;
-          case 'cad':
-            router.push('/dashboard/cad');
-            break;
-          case 'commercial':
-            router.push('/dashboard/commercial');
-            break;
-          case 'mmc':
-            router.push('/dashboard/mmc');
-            break;
-          case 'admin':
+        // Get the actual user session to determine role
+        const response = await fetch('/api/auth/session');
+        const session = await response.json();
+        
+        if (session?.user?.role) {
+          const role = session.user.role;
+          
+          // Redirect based on actual role from session
+          if (role === 'admin') {
             router.push('/dashboard/admin');
-            break;
-          default:
-            router.push('/dashboard/vmd');
+          } else if (role === 'production-manager') {
+            router.push('/dashboard/production-manager');
+          } else {
+            // For department roles (vmd, cad, commercial, mmc, etc.)
+            router.push(`/dashboard/${role}`);
+          }
+        } else {
+          // Fallback
+          router.push('/dashboard/vmd');
         }
       }
     } catch (error) {
@@ -66,6 +65,7 @@ export default function LoginPage() {
     { email: 'cad@demo.com', role: 'CAD Manager' },
     { email: 'commercial@demo.com', role: 'Commercial Manager' },
     { email: 'mmc@demo.com', role: 'MMC Manager' },
+    { email: 'production@demo.com', role: 'Production Manager' },
     { email: 'admin@demo.com', role: 'Admin' }
   ];
 

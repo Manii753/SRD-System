@@ -4,9 +4,12 @@ A comprehensive Sample Request & Development Tracking System built with Next.js,
 
 ## Features
 
+- **🎨 Fully Dynamic System**: Configure departments, stages, and fields without code changes
 - **Role-Based Access Control**: Different dashboards for VMD, CAD, Commercial, MMC, and Admin roles
 - **Real-Time Notifications**: Pusher.js integration for live updates and notifications
 - **Department Workflows**: Each department has specific fields and approval processes
+- **Custom Workflow Stages**: Create and configure stages with colors, icons, and automation
+- **Dynamic Fields**: Add custom fields to SRD records for any department
 - **CAD Subprocess Tracking**: Detailed tracking of Sewing, Stitching, Cutting, and Finishing
 - **Flagging System**: Departments can flag issues with required comments
 - **Progress Tracking**: Real-time progress calculation based on department approvals
@@ -101,12 +104,29 @@ PUSHER_SECRET=your-secret
 NEXT_PUBLIC_PUSHER_CLUSTER=your-cluster
 ```
 
-5. Run the development server:
+5. Seed the dynamic system (departments, stages, fields):
+```bash
+npm run seed:dynamic
+```
+
+6. Run the development server:
 ```bash
 npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🎨 Dynamic System
+
+The system now features a fully customizable architecture! See [QUICK_START_DYNAMIC.md](QUICK_START_DYNAMIC.md) for a quick guide or [DYNAMIC_SYSTEM.md](DYNAMIC_SYSTEM.md) for complete documentation.
+
+### Configuration Pages
+- **Settings Hub**: `/settings` - Central configuration dashboard
+- **Departments**: `/departments` - Manage organizational departments
+- **Stages**: `/stages` - Configure workflow stages with colors and icons
+- **SRD Fields**: `/srdfields` - Add custom fields to SRD records
+
+All configuration is done through the UI - no code changes required!
 
 ## Demo Accounts
 

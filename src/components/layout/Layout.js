@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Header from './Header';
-import AppSidebar from './Sidebar';
+import DynamicSidebar from './DynamicSidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
@@ -19,7 +19,7 @@ export default function Layout({ children }) {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <DynamicSidebar />
       <SidebarInset>
         <div className="min-h-screen bg-gray-50">
           <Header />

@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { 
     type: String, 
-    enum: ['admin', 'vmd', 'cad', 'commercial', 'mmc'], 
     required: true 
   },
   department: String,
@@ -25,4 +24,9 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-export default mongoose.models.User || mongoose.model('User', userSchema);
+// Delete the model if it exists to ensure schema updates are applied
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+export default mongoose.model('User', userSchema);

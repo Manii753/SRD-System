@@ -31,8 +31,29 @@ const srdSchema = new mongoose.Schema({
   
   progress: { type: Number, default: 0, min: 0, max: 100 },
   readyForProduction: { type: Boolean, default: false },
-  inProduction: { type: Boolean, ault: false },
+  inProduction: { type: Boolean, default: false },
   
+  // Production tracking
+  productionStartDate: { type: Date },
+  productionEndDate: { type: Date },
+  currentProductionStage: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'ProductionStage' 
+  },
+  productionProgress: { type: Number, default: 0, min: 0, max: 100 },
+  productionHistory: [{
+    stage: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductionStage' },
+    stageName: String,
+    startDate: { type: Date, default: Date.now },
+    endDate: Date,
+    completedBy: String,
+    notes: String,
+    status: { 
+      type: String, 
+      enum: ['in-progress', 'completed', 'on-hold', 'issue'],
+      default: 'in-progress'
+    }
+  }],
   
   status: {
     type: Map,
@@ -43,7 +64,6 @@ const srdSchema = new mongoose.Schema({
     }
   },
 
-  
   // Images (optional)
   images: [String],
 
@@ -64,10 +84,24 @@ const srdSchema = new mongoose.Schema({
 // Calculate progress and readyforproduction before saving
 srdSchema.pre('save', function (next) {
   if (this.status && this.status.size > 0) {
-    const approvedCount = Array.from(this.status.values()).filter(s => s === 'approved').length;
-    const totalDepts = this.status.size;
-    this.progress = Math.round((approvedCount / totalDepts) * 100);
-    this.readyForProduction = approvedCount === totalDepts;
+    // Exclude admin and production-manager from approval workflow
+    const excludedRoles = ['admin', 'production-manager'];
+    
+    // Filter out excluded roles
+    const relevantStatuses = Array.from(this.status.entries()).filter(
+      ([dept, status]) => !excludedRoles.includes(dept)
+    );
+    
+    if (relevantStatuses.length > 0) {
+      const approvedCount = relevantStatuses.filter(([dept, status]) => status === 'approved').length;
+      const totalDepts = relevantStatuses.length;
+      
+      this.progress = Math.round((approvedCount / totalDepts) * 100);
+      this.readyForProduction = approvedCount === totalDepts;
+    } else {
+      this.progress = 0;
+      this.readyForProduction = false;
+    }
   } else {
     this.progress = 0;
     this.readyForProduction = false;
