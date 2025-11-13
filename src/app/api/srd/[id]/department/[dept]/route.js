@@ -10,28 +10,33 @@ export async function PATCH(request, context) {
     const { id, dept } = params;
     const body = await request.json();
 
+    console.log(`[PATCH] Department update for ${dept}:`, JSON.stringify(body, null, 2));
+
     const srd = await SRD.findById(id);
 
     if (!srd) {
       return NextResponse.json({ success: false, error: 'SRD not found' }, { status: 404 });
     }
 
+    console.log(`[PATCH] Current status for ${dept}:`, srd.status?.[dept]);
+
     // Validate required comment when flagging
     if (body.status === 'flagged' && (!body.comment || !body.comment.text)) {
       return NextResponse.json({ success: false, error: 'Comment is required when flagging an SRD' }, { status: 400 });
     }
 
-    const updates = {
-      [`status.${dept}`]: body.status,
-      updatedAt: new Date(),
-    };
+    // Update status
+    if (!srd.status) {
+      srd.status = {};
+    }
+    srd.status[dept] = body.status;
+    srd.markModified('status');
+    srd.updatedAt = new Date();
 
     // Update department-specific fields
     if (body.fields && Object.keys(body.fields).length > 0) {
-      updates[`${dept}Fields`] = { ...(srd[`${dept}Fields`] || {}), ...body.fields };
+      srd[`${dept}Fields`] = { ...(srd[`${dept}Fields`] || {}), ...body.fields };
     }
-
-    srd.set(updates);
 
     // Add comment if provided
     if (body.comment && body.comment.text) {
@@ -54,6 +59,8 @@ export async function PATCH(request, context) {
     });
 
     const updatedSRD = await srd.save();
+
+    console.log(`[PATCH] After save - ${dept}:`, updatedSRD.status?.[dept], 'Progress:', updatedSRD.progress);
 
     // Trigger Pusher event
     const eventName = body.status === 'flagged' ? 'srd:flag' : 'srd:update';

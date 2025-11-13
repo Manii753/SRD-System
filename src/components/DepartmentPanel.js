@@ -30,8 +30,8 @@ export default function DepartmentPanel({
   const authorName = session?.user?.name;
   const role = session?.user?.role;
 
-  const [status, setStatus] = useState(srd.status[department]);
-  const [fields, setFields] = useState(srd.dynamicFields.filter(f => f.department === department));
+  const [status, setStatus] = useState(srd.status?.[department] || 'pending');
+  const [fields, setFields] = useState(srd.dynamicFields?.filter(f => f.department === department) || []);
   const [fieldDefs, setFieldDefs] = useState([]); 
 
   const [showFlagDialog, setShowFlagDialog] = useState(false);
@@ -56,6 +56,11 @@ export default function DepartmentPanel({
     }
     fetchFields();
   }, [department]);
+
+  // Update status when SRD changes
+  useEffect(() => {
+    setStatus(srd.status?.[department] || 'pending');
+  }, [srd, department]);
 
   const handleFieldChange = (name, value) => {
     setFields(prev => {
@@ -93,7 +98,7 @@ export default function DepartmentPanel({
     setIsSubmitting(true);
 
     const updateData = {
-      status: { [department]: newStatus },
+      status: newStatus,  // Send status as string, not object
       fields,
     };
 

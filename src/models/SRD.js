@@ -56,12 +56,9 @@ const srdSchema = new mongoose.Schema({
   }],
   
   status: {
-    type: Map,
-    of: {
-      type: String,
-      enum: ['pending', 'in-progress', 'flagged', 'approved'],
-      default: 'pending'
-    }
+    type: Object,
+    of: String,
+    default: {}
   },
 
   // Images (optional)
@@ -83,12 +80,12 @@ const srdSchema = new mongoose.Schema({
 
 // Calculate progress and readyforproduction before saving
 srdSchema.pre('save', function (next) {
-  if (this.status && this.status.size > 0) {
+  if (this.status && typeof this.status === 'object' && Object.keys(this.status).length > 0) {
     // Exclude admin and production-manager from approval workflow
     const excludedRoles = ['admin', 'production-manager'];
     
     // Filter out excluded roles
-    const relevantStatuses = Array.from(this.status.entries()).filter(
+    const relevantStatuses = Object.entries(this.status).filter(
       ([dept, status]) => !excludedRoles.includes(dept)
     );
     

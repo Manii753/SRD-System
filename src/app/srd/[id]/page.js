@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import DepartmentPanel from '@/components/DepartmentPanel';
 import ProductionControl from '@/components/ProductionControl';
+import SRDDiagnostic from '@/components/SRDDiagnostic';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -43,6 +44,7 @@ export default function SRDDetailPage() {
       try {
         const response = await fetch(`/api/srd/${params.id}`);
         const data = await response.json();
+        console.log('[Frontend] Fetched SRD:', data.data?.refNo, 'Status:', data.data?.status);
         if (data.success) {
           setSrd(data.data);
         } else {
@@ -74,6 +76,8 @@ export default function SRDDetailPage() {
 
   const handleDepartmentUpdate = async (department, updateData) => {
     try {
+      console.log('[Frontend] Sending update:', department, updateData);
+      
       const response = await fetch(`/api/srd/${params.id}/department/${department}`, {
         method: 'PATCH',
         headers: {
@@ -83,6 +87,8 @@ export default function SRDDetailPage() {
       });
 
       const data = await response.json();
+      console.log('[Frontend] Response:', data);
+      
       if (data.success) {
         setSrd(data.data);
         toast({
@@ -91,7 +97,11 @@ export default function SRDDetailPage() {
         });
         
         // Refresh timeline
-        fetchTimeline();
+        const timelineResponse = await fetch(`/api/srd/${params.id}/timeline`);
+        const timelineData = await timelineResponse.json();
+        if (timelineData.success) {
+          setTimeline(timelineData.data);
+        }
       } else {
         toast({
           title: 'Error',
@@ -100,6 +110,7 @@ export default function SRDDetailPage() {
         });
       }
     } catch (error) {
+      console.error('[Frontend] Update error:', error);
       toast({
         title: 'Error',
         description: 'Failed to update department',
@@ -218,6 +229,14 @@ export default function SRDDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* SRD Diagnostic Tool - For Admin and Production Manager */}
+        {(userRole === 'production-manager' || userRole === 'admin') && (
+          <SRDDiagnostic 
+            srdId={srd._id}
+            onFixed={() => window.location.reload()}
+          />
+        )}
 
         {/* Production Control - Only for Production Manager */}
         {(userRole === 'production-manager' || userRole === 'admin') && (

@@ -93,11 +93,11 @@ export async function POST(request) {
     // --- Initialize status for all departments (exclude admin and production-manager) ---
     const Department = require('@/models/Department').default;
     const allDepartments = await Department.find({});
-    const initialStatus = new Map();
+    const initialStatus = {};
     const excludedRoles = ['admin', 'production-manager'];
     allDepartments.forEach(dept => {
       if (!excludedRoles.includes(dept.slug)) {
-        initialStatus.set(dept.slug, 'pending');
+        initialStatus[dept.slug] = 'pending';
       }
     });
     body.status = initialStatus;
