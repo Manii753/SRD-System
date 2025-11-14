@@ -10,32 +10,75 @@ export async function PATCH(request, context) {
     const { id, dept } = params;
     const body = await request.json();
 
-    console.log(`[PATCH] Department update for ${dept}:`, JSON.stringify(body, null, 2));
-
     const srd = await SRD.findById(id);
 
     if (!srd) {
       return NextResponse.json({ success: false, error: 'SRD not found' }, { status: 404 });
     }
 
-    console.log(`[PATCH] Current status for ${dept}:`, srd.status?.[dept]);
-
     // Validate required comment when flagging
     if (body.status === 'flagged' && (!body.comment || !body.comment.text)) {
       return NextResponse.json({ success: false, error: 'Comment is required when flagging an SRD' }, { status: 400 });
     }
 
-    // Update status
+    // 🔹 FIX: Update status properly
     if (!srd.status) {
       srd.status = {};
     }
-    srd.status[dept] = body.status;
+    
+    // Create a new object to ensure Mongoose detects the change
+    const updatedStatus = { ...srd.status };
+    updatedStatus[dept] = body.status;
+    srd.status = updatedStatus;
     srd.markModified('status');
+    
+    // --- MOVED PROGRESS CALCULATION LOGIC HERE ---
+    const departmentStatuses = srd.status;
+    const excludedDepts = ['admin', 'production-manager', 'vmd'];
+    let relevantDeptCount = 0;
+    let approvedDeptCount = 0;
+
+    for (const deptKey in departmentStatuses) {
+      if (!excludedDepts.includes(deptKey)) {
+        relevantDeptCount++;
+        if (departmentStatuses[deptKey] === 'approved') {
+          approvedDeptCount++;
+        }
+      }
+    }
+
+    if (relevantDeptCount > 0) {
+      srd.progress = Math.round((approvedDeptCount / relevantDeptCount) * 100);
+      srd.readyForProduction = approvedDeptCount === relevantDeptCount;
+    } else {
+      srd.progress = 0;
+      srd.readyForProduction = false;
+    }
+    // --- END OF MOVED LOGIC ---
+
     srd.updatedAt = new Date();
 
-    // Update department-specific fields
-    if (body.fields && Object.keys(body.fields).length > 0) {
-      srd[`${dept}Fields`] = { ...(srd[`${dept}Fields`] || {}), ...body.fields };
+    // Update dynamic fields
+    if (body.fields && Array.isArray(body.fields) && body.fields.length > 0) {
+      // Update existing dynamicFields array
+      body.fields.forEach(updatedField => {
+        const existingFieldIndex = srd.dynamicFields.findIndex(
+          f => f.name === updatedField.name && f.department === dept
+        );
+        
+        if (existingFieldIndex > -1) {
+          // Update existing field
+          srd.dynamicFields[existingFieldIndex].value = updatedField.value;
+        } else {
+          // Add new field
+          srd.dynamicFields.push({
+            department: dept,
+            name: updatedField.name,
+            value: updatedField.value
+          });
+        }
+      });
+      srd.markModified('dynamicFields');
     }
 
     // Add comment if provided
@@ -58,9 +101,11 @@ export async function PATCH(request, context) {
       date: new Date(),
     });
 
+    // Save and get fresh document
     const updatedSRD = await srd.save();
-
-    console.log(`[PATCH] After save - ${dept}:`, updatedSRD.status?.[dept], 'Progress:', updatedSRD.progress);
+    
+    // 🔹 FIX: Fetch the document again to ensure all fields are populated correctly
+    const freshSRD = await SRD.findById(id).lean();
 
     // Trigger Pusher event
     const eventName = body.status === 'flagged' ? 'srd:flag' : 'srd:update';
@@ -72,7 +117,7 @@ export async function PATCH(request, context) {
 
     return NextResponse.json({
       success: true,
-      data: updatedSRD,
+      data: freshSRD, // Return the fresh document
       message: `${dept.toUpperCase()} department updated successfully`,
     });
   } catch (error) {

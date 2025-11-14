@@ -78,35 +78,4 @@ const srdSchema = new mongoose.Schema({
   audit: [auditSchema]
 });
 
-// Calculate progress and readyforproduction before saving
-srdSchema.pre('save', function (next) {
-  if (this.status && typeof this.status === 'object' && Object.keys(this.status).length > 0) {
-    // Exclude admin and production-manager from approval workflow
-    const excludedRoles = ['admin', 'production-manager'];
-    
-    // Filter out excluded roles
-    const relevantStatuses = Object.entries(this.status).filter(
-      ([dept, status]) => !excludedRoles.includes(dept)
-    );
-    
-    if (relevantStatuses.length > 0) {
-      const approvedCount = relevantStatuses.filter(([dept, status]) => status === 'approved').length;
-      const totalDepts = relevantStatuses.length;
-      
-      this.progress = Math.round((approvedCount / totalDepts) * 100);
-      this.readyForProduction = approvedCount === totalDepts;
-    } else {
-      this.progress = 0;
-      this.readyForProduction = false;
-    }
-  } else {
-    this.progress = 0;
-    this.readyForProduction = false;
-  }
-
-  this.updatedAt = new Date();
-  next();
-});
-
-
 export default mongoose.models.SRD || mongoose.model('SRD', srdSchema);

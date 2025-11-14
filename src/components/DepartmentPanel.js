@@ -6,8 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-// Assuming 'Select' is from '@/components/ui/select' but it's used as a native <select>
-// import { Select } from '@/components/ui/select'; 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -15,9 +13,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import ImageModal from '@/components/ImageModal'; // 🔹 This is the component from your second file
-import { toast } from 'sonner';
-import { useSession } from 'next-auth/react';
 
 export default function DepartmentPanel({
   srd,
@@ -26,10 +21,6 @@ export default function DepartmentPanel({
   isLoading,
   canEdit
 }) {
-  const { data: session } = useSession();
-  const authorName = session?.user?.name;
-  const role = session?.user?.role;
-
   const [status, setStatus] = useState(srd.status?.[department] || 'pending');
   const [fields, setFields] = useState(srd.dynamicFields?.filter(f => f.department === department) || []);
   const [fieldDefs, setFieldDefs] = useState([]); 
@@ -38,10 +29,9 @@ export default function DepartmentPanel({
   const [flagComment, setFlagComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // 🔹 Refactored state for modal
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageModalIndex, setImageModalIndex] = useState(0);
-  const [modalImages, setModalImages] = useState([]); // 🔹 Store the correct list of images for the modal
+  const [modalImages, setModalImages] = useState([]);
 
   useEffect(() => {
     async function fetchFields() {
@@ -50,6 +40,24 @@ export default function DepartmentPanel({
         const data = await res.json();
         const activeFields = Array.isArray(data) ? data.filter(f => f.active) : [];
         setFieldDefs(activeFields);
+        
+        // Initialize fields if they don't exist
+        const existingFieldNames = fields.map(f => f.name);
+        const newFields = [...fields];
+        
+        activeFields.forEach(fieldDef => {
+          if (!existingFieldNames.includes(fieldDef.name)) {
+            newFields.push({
+              name: fieldDef.name,
+              value: fieldDef.type === 'boolean' ? false : '',
+              department: department
+            });
+          }
+        });
+        
+        if (newFields.length > fields.length) {
+          setFields(newFields);
+        }
       } catch (err) {
         console.error('Failed to fetch fields', err);
       }
@@ -70,7 +78,6 @@ export default function DepartmentPanel({
         newFields[existingFieldIndex] = { ...newFields[existingFieldIndex], value };
         return newFields;
       } else {
-        // This case should ideally not happen if fields are correctly initialized
         return [...prev, { name, value, department }];
       }
     });
@@ -94,28 +101,29 @@ export default function DepartmentPanel({
     setFlagComment('');
   };
 
+  // 🔹 FIXED: Now sends proper object structure
   const handleUpdate = async (newStatus, comment = null) => {
     setIsSubmitting(true);
 
     const updateData = {
-      status: newStatus,  // Send status as string, not object
-      fields,
+      status: newStatus,  // Send status as string
+      fields: fields,     // Send fields array
     };
 
     if (comment) {
       updateData.comment = {
-        author: authorName,
-        role,
+        author: srd.createdBy?.name || 'Unknown',
+        role: srd.createdBy?.role || 'user',
         text: comment,
       };
     }
 
+    console.log('[Frontend] Sending update data:', department, updateData);
+
     try {
-      await onUpdate(department, updateData);
-      toast.success(`${department.toUpperCase()} department updated successfully!`);
+      await onUpdate(updateData);  // 🔹 FIXED: Only pass updateData, not department
     } catch (error) {
       console.error('Update failed:', error);
-      toast.error(`Failed to update ${department.toUpperCase()} department.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -188,7 +196,6 @@ export default function DepartmentPanel({
               );
 
             case 'image':
-              // Get department-specific images for *this* field
               const deptImages = Array.isArray(fieldValue)
                 ? fieldValue
                 : fieldValue
@@ -208,9 +215,8 @@ export default function DepartmentPanel({
                           key={idx}
                           className="relative group cursor-pointer"
                           onClick={() => {
-                            // 🔹 Set state for the modal
                             setImageModalIndex(idx);
-                            setModalImages(allImages); // 🔹 Pass the correct image list
+                            setModalImages(allImages);
                             setIsImageModalOpen(true);
                           }}
                         >
@@ -242,7 +248,6 @@ export default function DepartmentPanel({
       </div>
     );
   };
-
 
   return (
     <Card>
@@ -341,15 +346,6 @@ export default function DepartmentPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
-      {/* 🔹 Refactored ImageModal call */}
-      <ImageModal
-        images={modalImages}
-        initialIndex={imageModalIndex}
-        open={isImageModalOpen}
-        onOpenChange={setIsImageModalOpen}
-      />
-
     </Card>
   );
 }
