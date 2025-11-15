@@ -4,8 +4,11 @@ import Stage from '../models/Stage.js';
 import Field from '../models/Field.js';
 import ProductionStage from '../models/ProductionStage.js';
 import User from '../models/User.js';
+import dotenv from 'dotenv';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/srd-system';
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function seedDynamic() {
   try {

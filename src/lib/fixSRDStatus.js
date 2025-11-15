@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 import SRD from '../models/SRD.js';
 import Department from '../models/Department.js';
+import dotenv from 'dotenv';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/srd-system';
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function fixSRDStatus() {
   try {

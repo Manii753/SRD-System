@@ -13,19 +13,30 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        await dbConnect();
+        console.log("Authorize function started");
+        try {
+          await dbConnect();
+          console.log("Database connected");
 
-        const user = await User.findOne({ email: credentials.email });
-        
-        if (user && await bcrypt.compare(credentials.password, user.password)) {
+          const user = await User.findOne({ email: credentials.email });
+          console.log("User found:", user ? user.email : null);
           
-          return {
-            id: user._id,
-            email: user.email,
-            name: user.name,
-            role: user.role
-          };
+          if (user) {
+            const isMatch = await bcrypt.compare(credentials.password, user.password);
+            console.log("Password match result:", isMatch);
+            if (isMatch) {
+              return {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role
+              };
+            }
+          }
+        } catch (error) {
+          console.error("Error in authorize function:", error);
         }
+        console.log("Authorize function returning null");
         return null;
       }
     })
