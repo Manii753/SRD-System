@@ -14,6 +14,7 @@ export async function GET(request) {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
     const readyForProduction = searchParams.get('readyForProduction');
+    const inProduction = searchParams.get('inProduction');
 
     let query = {};
 
@@ -39,6 +40,15 @@ export async function GET(request) {
     // Filter by readyForProduction
     if (readyForProduction === 'true') {
       query['readyForProduction'] = true;
+    } else if (readyForProduction === 'false') {
+      query['readyForProduction'] = false;
+    }
+
+    // Filter by inProduction
+    if (inProduction === 'true') {
+      query['inProduction'] = true;
+    } else if (inProduction === 'false') {
+      query['inProduction'] = false;
     }
 
     // Search by refNo or title

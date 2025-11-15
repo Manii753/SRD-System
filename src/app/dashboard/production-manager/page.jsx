@@ -43,12 +43,16 @@ export default function ProductionManagerDashboard() {
   const fetchData = async () => {
     try {
       const [readyRes, productionRes, stagesRes] = await Promise.all([
+        // Ready for production: readyForProduction=true AND inProduction=false
         fetch('/api/srd?readyForProduction=true&inProduction=false'),
-        fetch('/api/srd?inProduction=true'),
+        // In production: both readyForProduction=true AND inProduction=true
+        fetch('/api/srd?readyForProduction=true&inProduction=true'),
         fetch('/api/production-stages')
       ]);
 
       const readyData = await readyRes.json();
+
+      console.log("fdsfsdfsdfsdfsdfsdfsdfsdf",readyData);
       const productionData = await productionRes.json();
       const stagesData = await stagesRes.json();
 
@@ -59,6 +63,31 @@ export default function ProductionManagerDashboard() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStartProduction = async (srdId) => {
+    try {
+      const response = await fetch(`/api/srd/${srdId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          inProduction: true, 
+          readyForProduction: true, // Keep it true when starting production
+          productionStartDate: new Date() 
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        fetchData(); // Refresh data after starting production
+      } else {
+        console.error('Failed to start production:', result.error);
+      }
+    } catch (error) {
+      console.error('Error starting production:', error);
     }
   };
 
@@ -171,12 +200,13 @@ export default function ProductionManagerDashboard() {
                       <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
                       All departments approved
                     </div>
-                    <Link href={`/srd/${srd._id}`}>
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
-                        <Play className="h-4 w-4 mr-2" />
-                        Start Production
-                      </Button>
-                    </Link>
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => handleStartProduction(srd._id)}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Production
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
